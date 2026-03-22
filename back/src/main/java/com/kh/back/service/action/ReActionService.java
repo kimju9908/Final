@@ -60,7 +60,7 @@ public class ReActionService {
 
     private Member getMember(Authentication authentication) {
         if (authentication == null) {
-            throw new InsufficientAuthenticationException("반응 기능은 로그인 후 사용할 수 있습니다.");
+            throw new InsufficientAuthenticationException("좋아요 기능은 로그인 후 사용할 수 있습니다.");
         }
 
         Long memberId = Long.parseLong(authentication.getName());

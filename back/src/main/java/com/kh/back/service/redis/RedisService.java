@@ -38,11 +38,9 @@ public class RedisService {
         if (authentication == null) {
             return ReactionType.NONE;
         }
-
         String userId = String.valueOf(memberService.getMemberId(authentication));
         return getCurrentReactionInternal(authentication, postId, type, userId);
     }
-
     public ReactionSummaryResDto getReactionSummary(
             Authentication authentication,
             String postId,
@@ -56,7 +54,6 @@ public class RedisService {
 
         return buildSummary(postId, type, likeCount, dislikeCount, currentReaction);
     }
-
     public ReactionSummaryResDto updateReaction(
             Authentication authentication,
             String postId,
@@ -71,21 +68,16 @@ public class RedisService {
         if (requestedReaction == null || requestedReaction == ReactionType.NONE) {
             throw new IllegalArgumentException("요청 반응값은 LIKE 또는 DISLIKE 여야 합니다.");
         }
-
         String userId = String.valueOf(memberService.getMemberId(authentication));
         String likeCountKey = getLikeCountKey(postId, type);
         String dislikeCountKey = getDislikeCountKey(postId, type);
-
         long likeCount = getOrInitializeCount(likeCountKey, baseLikeCount);
         long dislikeCount = getOrInitializeCount(dislikeCountKey, baseDislikeCount);
         ReactionType currentReaction = getCurrentReactionInternal(authentication, postId, type, userId);
         ReactionType nextReaction = resolveNextReaction(currentReaction, requestedReaction);
-
         reActionService.syncReaction(authentication, postId, type, nextReaction);
-
         long updatedLikeCount = likeCount;
         long updatedDislikeCount = dislikeCount;
-
         if (currentReaction == ReactionType.LIKE && nextReaction != ReactionType.LIKE) {
             updatedLikeCount = decrementNonNegative(likeCountKey, updatedLikeCount);
         }
@@ -98,7 +90,6 @@ public class RedisService {
         if (nextReaction == ReactionType.DISLIKE && currentReaction != ReactionType.DISLIKE) {
             updatedDislikeCount = increment(dislikeCountKey, updatedDislikeCount);
         }
-
         updateUserReactionState(postId, type, userId, nextReaction);
 
         log.info("[updateReaction] memberId={}, postId={}, type={}, currentReaction={}, requestedReaction={}, nextReaction={}, likeCount={}, dislikeCount={}",
@@ -106,7 +97,6 @@ public class RedisService {
 
         return buildSummary(postId, type, updatedLikeCount, updatedDislikeCount, nextReaction);
     }
-
     public List<Map<String, Object>> getAllReactionCounts() {
         Set<String> baseKeys = collectReactionBaseKeys();
         List<Map<String, Object>> result = new ArrayList<>();
@@ -116,7 +106,6 @@ public class RedisService {
             if (parts == null) {
                 continue;
             }
-
             long likeCount = readLong(getLikeCountKey(parts[0], parts[1])).orElse(0L);
             long dislikeCount = readLong(getDislikeCountKey(parts[0], parts[1])).orElse(0L);
             result.add(Map.of(
