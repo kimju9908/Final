@@ -15,7 +15,7 @@ export interface UserState {
   admin: boolean;
   premium: boolean; // 프리미엄 회원 여부 추가
   likedRecipes: Set<string>; // 좋아요한 레시피 ID 목록
-  reportedRecipes: Set<string>; // 신고한 레시피 ID 목록
+  dislikedRecipes: Set<string>; // 싫어요한 레시피 ID 목록
 }
 // 모달에 들어가는 데이터 타입
 export interface ModalState {
@@ -136,6 +136,6 @@ export interface RecipeData {
   RCP_NA_TIP: string;
   MANUALS: Step[];
   like: number;
-  report: number;
+  dislike: number;
   author: number;
 }

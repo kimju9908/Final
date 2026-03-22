@@ -4,7 +4,7 @@ import { Card, CardContent, CardMedia, Typography, Grid, Box, CircularProgress, 
 import Comment from '../comment/Comment';
 import LikeReportButtons from '../LikeReportButton';
 import Profile from '../profile/Profile';
-import {CocktailResDto} from '../../api/dto/RecipeDto'
+import {CocktailResDto, ReactionSummaryDto} from '../../api/dto/RecipeDto'
 import RecipeApi from '../../api/RecipeApi';
 import cocktailDetailStyles from './style/CocktailDetailStyles';
 // 칵테일 재료 DTO 타입 정의
@@ -12,10 +12,9 @@ import cocktailDetailStyles from './style/CocktailDetailStyles';
 
 const CocktailDetail: React.FC = () => {
     const [cocktail, setCocktail] = useState<CocktailResDto | null>(null);
+    const [reactionSummary, setReactionSummary] = useState<ReactionSummaryDto | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
-    const [likes, setLikes] = useState<number>(0);
-    const [reports, setReports] = useState<number>(0);
 
     const { id, type } = useParams<{ id: string; type: string }>();
 
@@ -23,8 +22,12 @@ const CocktailDetail: React.FC = () => {
         useEffect(() => {
             const getRecipe = async () => {
                 try {
-                    const data = await RecipeApi.fetchCocktail(id!, type!); // ✅ RecipeApi에서 가져오기
-                    setCocktail(data);
+                    const [detail, summary] = await Promise.all([
+                        RecipeApi.fetchCocktail(id!, type!),
+                        RecipeApi.fetchReactionSummary(id!, type!),
+                    ]);
+                    setCocktail(detail);
+                    setReactionSummary(summary);
                 } catch (err) {
                     setError('레시피 상세 정보를 불러오는 데 실패했습니다.');
                 } finally {
@@ -36,15 +39,16 @@ const CocktailDetail: React.FC = () => {
         }, [id, type]);
         
 
-    // 좋아요/신고 수 업데이트 함수
-    const updateCounts = (newLikes: number, newReports: number) => {
-        setLikes(newLikes);
-        setReports(newReports);
-    };
-
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
     if (!cocktail) return <Alert severity="warning">칵테일을 찾을 수 없습니다.</Alert>;
+    const resolvedReactionSummary = reactionSummary ?? {
+        postId: id ?? "",
+        type: type || "",
+        likeCount: cocktail.like,
+        dislikeCount: cocktail.dislike,
+        currentUserReaction: "NONE" as const,
+    };
 
         return (
             <Box sx={cocktailDetailStyles.container}>
@@ -53,12 +57,7 @@ const CocktailDetail: React.FC = () => {
     component="img"
     image={cocktail.image}
     alt={cocktail.name}
-    sx={{
-        width: "100%", // 80%로 설정하여 가로 비율을 늘리기
-        height: "auto", 
-        maxHeight: "600px", 
-        objectFit: "contain", 
-    }}
+    sx={cocktailDetailStyles.cardMedia}
 />
                     <CardContent sx={cocktailDetailStyles.cardContent}>
                         <Typography variant="h3" component="h1" gutterBottom sx={cocktailDetailStyles.title}>
@@ -66,22 +65,22 @@ const CocktailDetail: React.FC = () => {
                         </Typography>
                         <Grid container spacing={3} sx={cocktailDetailStyles.gridContainer}>
                             <Grid item xs={12} md={4}>
-                                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.2rem' }}>
+                                <Typography variant="body1" color="text.secondary" sx={cocktailDetailStyles.typography}>
                                     <strong>알콜 도수 (ABV):</strong> {cocktail.abv}%
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.2rem' }}>
+                                <Typography variant="body1" color="text.secondary" sx={cocktailDetailStyles.typography}>
                                     <strong>글래스:</strong> {cocktail.glass}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.2rem' }}>
+                                <Typography variant="body1" color="text.secondary" sx={cocktailDetailStyles.typography}>
                                     <strong>분류:</strong> {cocktail.category}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} sx={cocktailDetailStyles.gridMarginTop}>
-                                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.2rem' }}>
+                                <Typography variant="body1" color="text.secondary" sx={cocktailDetailStyles.typography}>
                                     <strong>조리 과정:</strong> {cocktail.preparation}
                                 </Typography>
                             </Grid>
@@ -99,7 +98,7 @@ const CocktailDetail: React.FC = () => {
                         <Grid container spacing={3} sx={cocktailDetailStyles.ingredientGrid}>
                             {cocktail.ingredients?.map((ingredient, index) => (
                                 <Grid item xs={12} sm={6} md={4} key={index}>
-                                    <Typography variant="body1" sx={{ fontSize: '1.2rem' }}>
+                                    <Typography variant="body1" sx={cocktailDetailStyles.typography}>
                                         {ingredient.ingredient === null && ingredient.special ? (
                                             `${ingredient.special}`
                                         ) : (
@@ -112,7 +111,7 @@ const CocktailDetail: React.FC = () => {
         
                         {cocktail.garnish && (
                             <Grid item xs={12} md={6} sx={cocktailDetailStyles.garnishGrid}>
-                                <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.2rem' }}>
+                                <Typography variant="body1" color="text.secondary" sx={cocktailDetailStyles.typography}>
                                     <strong>가니시:</strong> {cocktail.garnish}
                                 </Typography>
                             </Grid>
@@ -120,11 +119,17 @@ const CocktailDetail: React.FC = () => {
         
                         <Box sx={cocktailDetailStyles.likeReportBox}>
                             <LikeReportButtons
-                                postId={cocktail.id}
+                                postId={id ?? ""}
                                 type={type || ""}
-                                likes={likes}
-                                reports={reports}
-                                updateCounts={updateCounts}
+                                reactionSummary={resolvedReactionSummary}
+                                onReactionChange={(summary) => {
+                                    setReactionSummary(summary);
+                                    setCocktail((prev) => (
+                                        prev
+                                            ? { ...prev, like: summary.likeCount, dislike: summary.dislikeCount }
+                                            : prev
+                                    ));
+                                }}
                             />
                         </Box>
         

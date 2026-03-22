@@ -1,6 +1,11 @@
 const cocktailDetailStyles = {
     container: { maxWidth: 1200, margin: 'auto', padding: 3 },
-    cardMedia: { height: 600, width: '100%', objectFit: 'cover' }, // 쉐도우 제거
+    cardMedia: { 
+        width: "100%",
+        height: "auto", 
+        maxHeight: "600px", 
+        objectFit: "contain", 
+    },
     cardContent: { padding: 4 },
     title: { fontWeight: 'bold', marginBottom: 5, fontSize: '2.5rem' },
     gridContainer: { marginBottom: 5 },
@@ -11,6 +16,7 @@ const cocktailDetailStyles = {
     garnishGrid: { marginBottom: 4 },
     likeReportBox: { marginTop: 5, marginBottom: 5 },
     commentBox: { marginTop: 6 },
+    typography: { fontSize: '1.2rem' },
     
     gridItem: { xs: 12, sm: 6, md: 4 },  // 반복되는 그리드 스타일
     gridFullWidth: { xs: 12 },  // 전체 너비

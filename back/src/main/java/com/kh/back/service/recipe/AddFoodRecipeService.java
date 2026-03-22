@@ -78,6 +78,8 @@ public class AddFoodRecipeService {
         recipeData.put("RCP_NA_TIP", recipeRequest.getRcpNaTip());
         recipeData.put("ingredients", recipeRequest.getIngredients());
         recipeData.put("MANUALS", manualsWithUrls);
+        recipeData.put("like", 0L);
+        recipeData.put("dislike", 0L);
         recipeData.put("author", memberId);
 
         return recipeData;

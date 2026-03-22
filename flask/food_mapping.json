@@ -41,7 +41,7 @@
       "like": {
         "type" : "long"
       },
-      "report": {
+      "dislike": {
         "type" : "long"
       },
       "author" : {

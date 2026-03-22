@@ -20,7 +20,7 @@ public class FoodDetailResDto extends SearchResDto {
     private String ATT_FILE_NO_MAIN;
     private String ATT_FILE_NO_MK;
     private int like;
-    private int report;
+    private int dislike;
     private int author;
 
     public static class IngredientDto {
@@ -37,4 +37,3 @@ public class FoodDetailResDto extends SearchResDto {
 
     }
 }
-

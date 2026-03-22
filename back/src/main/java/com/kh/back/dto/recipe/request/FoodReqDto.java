@@ -24,5 +24,5 @@ public class FoodReqDto {
     private String description;
     private String image;
     private Long like;
-    private Long report;
+    private Long dislike;
 }

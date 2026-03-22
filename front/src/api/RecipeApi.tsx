@@ -1,7 +1,7 @@
 import axios from "axios"
 import axiosInstance from "./AxiosInstance";
 
-import { FoodResDto,CocktailResDto,CocktailIngDto,CommentDto} from "./dto/RecipeDto";
+import { FoodResDto,CocktailResDto,CocktailIngDto,CommentDto, RecommendedFoodDto, RecommendedCocktailDto, ReactionSummaryDto, ReactionType} from "./dto/RecipeDto";
 const baseURL ='http://localhost:8111'
 const RecipeApi = {
 
@@ -75,7 +75,7 @@ fetchCocktail : async (id: string, type: string): Promise<CocktailResDto> => {
 
 fetchComments: async (postId: string, page: number = 1, size: number = 5) => {
         const response = await axiosInstance.get<{ content: CommentDto[]; totalPages: number }>(
-            `/comments/${postId}`,
+            `/recipes/${postId}/comments`,
             {
                 params: { page: page - 1, size }, // 백엔드는 0부터 시작하는 페이지 인덱스
             }
@@ -86,8 +86,7 @@ fetchComments: async (postId: string, page: number = 1, size: number = 5) => {
 },
 addComment: async (postId: string, content: string) => {
 
-        const response = await axiosInstance.post("/comments/addComment", {
-            recipeId: postId, // recipeId 필드로 전송
+        const response = await axiosInstance.post(`/recipes/${postId}/comments`, {
             content,
         });
         return response.data;
@@ -96,8 +95,7 @@ addComment: async (postId: string, content: string) => {
 
     addReply: async (parentCommentId: number, content: string) => {
        
-            const response = await axiosInstance.post("/comments/addReply", {
-                parentCommentId,
+            const response = await axiosInstance.post(`/comments/${parentCommentId}/replies`, {
                 content,
             });
             return response.data;
@@ -106,20 +104,30 @@ addComment: async (postId: string, content: string) => {
 
     deleteComment: async (commentId: number) => {
  
-            const response = await axiosInstance.delete(`/comments/deleteComment/${commentId}`);
+            const response = await axiosInstance.delete(`/comments/${commentId}`);
             return response.data;  // 서버에서 반환된 응답 반환
       
     },
 
-    updateLikeCount: async (postId: string, type: string, increase: boolean) => {
-        const url = `/recipe/updateCount?action=likes&postId=${postId}&type=${type}&increase=${increase}`;
-            const response = await axiosInstance.post(url);
-            return response.data;
+    updateReaction: async (postId: string, type: string, requestedReaction: ReactionType): Promise<ReactionSummaryDto> => {
+        const response = await axiosInstance.post("/recipe/reaction", {
+            postId,
+            type,
+            requestedReaction,
+        });
+        return response.data;
     },
-    updateReportCount: async (postId: string, type: string, increase: boolean) => {
-        const url = `/recipe/updateCount?action=reports&postId=${postId}&type=${type}&increase=${increase}`;
-            const response = await axiosInstance.post(url);
-            return response.data;
+    fetchReactionSummary: async (postId: string, type: string): Promise<ReactionSummaryDto> => {
+        const response = await axios.get<ReactionSummaryDto>(baseURL + `/recipe/reaction-summary?postId=${postId}&type=${type}`);
+        return response.data;
+    },
+    fetchRecommendedFoodsByLikes: async (): Promise<RecommendedFoodDto[]> => {
+        const response = await axiosInstance.get("/recommend/food/likes");
+        return response.data;
+    },
+    fetchRecommendedCocktailsByLikes: async (): Promise<RecommendedCocktailDto[]> => {
+        const response = await axiosInstance.get("/recommend/cocktail/likes");
+        return response.data;
     },
 
 }

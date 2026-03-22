@@ -1,7 +1,7 @@
 package com.kh.back.service.redux;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kh.back.constant.Action;
+import com.kh.back.constant.ReactionType;
 import com.kh.back.constant.Authority;
 import com.kh.back.dto.member.res.MemberPublicResDto;
 import com.kh.back.dto.member.res.ReduxResDto;
@@ -53,13 +53,13 @@ public class ReduxService {
 
 			// 좋아요 및 신고한 레시피 ID 리스트 만들기
 			Set<String> likedRecipes = reactions.stream()
-					.filter(reaction -> reaction.getAction() == Action.likes)
-					.map(Reaction::getPostId)
+					.filter(reaction -> reaction.getReactionType() == ReactionType.LIKE)
+					.map(reaction -> reaction.getContentType() + ":" + reaction.getPostId())
 					.collect(Collectors.toSet());
 
-			Set<String> reportedRecipes = reactions.stream()
-					.filter(reaction -> reaction.getAction() == Action.reports)
-					.map(Reaction::getPostId)
+			Set<String> dislikedRecipes = reactions.stream()
+					.filter(reaction -> reaction.getReactionType() == ReactionType.DISLIKE)
+					.map(reaction -> reaction.getContentType() + ":" + reaction.getPostId())
 					.collect(Collectors.toSet());
 
 			// ReduxResDto 생성
@@ -69,7 +69,7 @@ public class ReduxService {
 			reduxResDto.setNickname(member.getNickName());
 			reduxResDto.setRole(member.getAuthority());
 			reduxResDto.setLikedRecipes(likedRecipes);
-			reduxResDto.setReportedRecipes(reportedRecipes);
+			reduxResDto.setDislikedRecipes(dislikedRecipes);
 
 			// ★ 프리미엄 여부를 설정
 			// 예: member 객체에 프리미엄 여부를 판단하는 메서드가 있거나,

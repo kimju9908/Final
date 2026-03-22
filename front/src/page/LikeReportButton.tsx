@@ -1,75 +1,73 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, IconButton, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ReportIcon from '@mui/icons-material/Report';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../context/Store';
-import { toggleLikeRecipe, toggleReportRecipe } from '../context/redux/UserReducer';
+import { setRecipeReaction } from '../context/redux/UserReducer';
 import RecipeApi from '../api/RecipeApi';
 import { AxiosError } from 'axios';
-import { LikeReportButtonsProps } from '../api/dto/RecipeDto';
+import { LikeReportButtonsProps, ReactionType } from '../api/dto/RecipeDto';
+import { likeReportButtonStyles } from './LikeReportButtonStyles';
 
+const normalizeRecipeSet = (value: unknown): Set<string> => {
+    if (value instanceof Set) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return new Set(value.map(String));
+    }
+    return new Set();
+};
 
-const LikeReportButtons: React.FC<LikeReportButtonsProps> = ({ postId, type, likes, reports, updateCounts }) => {
+const LikeReportButtons: React.FC<LikeReportButtonsProps> = ({ postId, type, reactionSummary, onReactionChange }) => {
     const dispatch = useDispatch();
-    const { likedRecipes, reportedRecipes } = useSelector((state: RootState) => state.user);
+    const { likedRecipes, dislikedRecipes } = useSelector((state: RootState) => state.user);
+    const likedRecipeSet = normalizeRecipeSet(likedRecipes);
+    const dislikedRecipeSet = normalizeRecipeSet(dislikedRecipes);
+    const recipeKey = `${type}:${postId}`;
+    const isLiked = reactionSummary.currentUserReaction === "LIKE" || likedRecipeSet.has(recipeKey);
+    const isDisliked = reactionSummary.currentUserReaction === "DISLIKE" || dislikedRecipeSet.has(recipeKey);
 
-    const isLiked = likedRecipes.has(postId);
-    const isReported = reportedRecipes.has(postId);
-
-    // 좋아요 토글
-    const toggleLike = async () => {
-        const increase = !isLiked;
+    const handleReaction = async (requestedReaction: ReactionType) => {
         try {
-            const data = await RecipeApi.updateLikeCount(postId, type, increase);
-            if (data) {
-                updateCounts(likes + (increase ? 1 : -1), reports); // 먼저 UI 상태를 업데이트
-                dispatch(toggleLikeRecipe(postId)); // 그 후 리덕스 상태 업데이트
-            }
-        }catch (error) {
+            const summary = await RecipeApi.updateReaction(postId, type, requestedReaction);
+            onReactionChange(summary);
+            dispatch(setRecipeReaction({ recipeKey, reaction: summary.currentUserReaction }));
+        } catch (error) {
             if (error instanceof AxiosError && error.response?.status === 401) {
-                alert('좋아요 기능은 로그인 후 사용 가능합니다.');
+                alert('반응 기능은 로그인 후 사용 가능합니다.');
             } else {
-                console.error("좋아요 처리 중 오류 발생:", error);
+                console.error("반응 처리 중 오류 발생:", error);
             }
         }
     };
 
-    // 신고 토글
-    const toggleReport = async () => {
-        const increase = !isReported;
-        try {
-            const data = await RecipeApi.updateReportCount(postId, type, increase);
-            if (data) {
-                updateCounts(likes, reports + (increase ? 1 : -1)); // 먼저 UI 상태를 업데이트
-                dispatch(toggleReportRecipe(postId)); // 그 후 리덕스 상태 업데이트
-            }
-        } catch (error) {
-            if (error instanceof AxiosError && error.response?.status === 401) {
-                alert('신고 기능은 로그인 후 사용 가능합니다.');
-            } else {
-                console.error("신고 처리 중 오류 발생:", error);
-            }
-        }
+    const toggleLike = async () => {
+        await handleReaction("LIKE");
+    };
+
+    const toggleDislike = async () => {
+        await handleReaction("DISLIKE");
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center', alignItems: 'center',marginTop:10 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 ,gap:5}}>
-                <Typography fontSize={20} color="text.secondary" sx={{ marginRight: 3, fontWeight: 'bold' }}>
-                    <strong>좋아요:</strong> {likes}
+        <Box sx={likeReportButtonStyles.container}>
+            <Box sx={likeReportButtonStyles.countBox}>
+                <Typography fontSize={20} color="text.secondary" sx={likeReportButtonStyles.countText}>
+                    <strong>좋아요:</strong> {reactionSummary.likeCount}
                 </Typography>
-                <Typography fontSize={20} color="text.secondary" sx={{ marginRight: 3, fontWeight: 'bold' }}>
-                    <strong>신고:</strong> {reports}
+                <Typography fontSize={20} color="text.secondary" sx={likeReportButtonStyles.countText}>
+                    <strong>싫어요:</strong> {reactionSummary.dislikeCount}
                 </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 6 }}>
-                <IconButton onClick={toggleLike} sx={{ color: isLiked ? 'red' : 'inherit', fontSize: 32 }}>
-                    <FavoriteIcon sx={{ fontSize: 'inherit' }} />
+            <Box sx={likeReportButtonStyles.buttonBox}>
+                <IconButton onClick={toggleLike} sx={likeReportButtonStyles.likeButton(isLiked)}>
+                    <FavoriteIcon sx={likeReportButtonStyles.iconStyle} />
                 </IconButton>
-                <IconButton onClick={toggleReport} sx={{ color: isReported ? 'orange' : 'inherit', fontSize: 32 }}>
-                    <ReportIcon sx={{ fontSize: 'inherit' }} />
+                <IconButton onClick={toggleDislike} sx={likeReportButtonStyles.reportButton(isDisliked)}>
+                    <ThumbDownIcon sx={likeReportButtonStyles.iconStyle} />
                 </IconButton>
             </Box>
         </Box>

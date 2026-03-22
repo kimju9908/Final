@@ -44,7 +44,7 @@ axiosInstance.interceptors.response.use(
             store.dispatch(setToken({accessToken: rsp.data.accessToken, refreshToken: null}));
           }
           // 토큰 갱신 후 다시 요청을 보냄
-          error.config.headers["Authorization"] = `Bearer ${rsp.data}`;
+          error.config.headers["Authorization"] = `Bearer ${rsp.data.accessToken}`;
           return axios(error.config); // 재요청
         }
       } catch (e) {

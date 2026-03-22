@@ -10,7 +10,7 @@
       "category": {
         "type": "keyword"
       },
-      "ingredients": {
+      "ingredients":   {
         "type": "nested",
         "properties": {
           "unit": {
@@ -39,7 +39,7 @@
       "like": {
         "type" : "long"
       },
-      "report": {
+      "dislike": {
         "type" : "long"
       },
       "author" : {

@@ -17,7 +17,7 @@ export interface FoodResDto {
     instructions: ManualDto[];
     image: string;
     like: number;
-    report: number;
+    dislike: number;
     author: number;
 }
 
@@ -39,7 +39,7 @@ export interface CocktailResDto {
     garnish: string;
     glass: string;
     like: number;
-    report: number;
+    dislike: number;
     author: number;
     ingredients: CocktailIngDto[];
 }
@@ -57,11 +57,41 @@ export interface CommentSectionProps {
     postId: string; // 댓글이 속한 게시물 ID
 }
 
+export type ReactionType = "LIKE" | "DISLIKE" | "NONE";
+
+export interface ReactionSummaryDto {
+    postId: string;
+    type: string;
+    likeCount: number;
+    dislikeCount: number;
+    currentUserReaction: ReactionType;
+}
+
 export interface LikeReportButtonsProps {
     postId: string;
     type: string;
-    likes: number;
-    reports: number;
-    updateCounts: (newLikes: number, newReports: number) => void;
+    reactionSummary: ReactionSummaryDto;
+    onReactionChange: (summary: ReactionSummaryDto) => void;
 }
 
+export interface RecommendedFoodDto {
+    id: string;
+    name: string;
+    image?: string;
+    category?: string;
+    like: number;
+    author: number;
+    reason: string;
+    recommendationScore: number;
+}
+
+export interface RecommendedCocktailDto {
+    id: string;
+    name: string;
+    image?: string;
+    category?: string;
+    like: number;
+    author: number;
+    reason: string;
+    recommendationScore: number;
+}

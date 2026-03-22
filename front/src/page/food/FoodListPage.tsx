@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { fetchRecipeList } from "../../api/RecipeListApi";
 import placeholder2 from "./style/placeholder2.png";
 import { FoodListResDto } from "../../api/dto/FoodListResDto";
+import RecipeApi from "../../api/RecipeApi";
+import { RecommendedFoodDto } from "../../api/dto/RecipeDto";
+import { AxiosError } from "axios";
 
 /**
  * 음식 레시피 목록 페이지 (작은 카드 버전)
@@ -31,6 +34,8 @@ const FoodListPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedCookingMethod, setSelectedCookingMethod] =
     useState<string>("");
+  const [recommendedRecipes, setRecommendedRecipes] = useState<RecommendedFoodDto[]>([]);
+  const [recommendationMessage, setRecommendationMessage] = useState<string>("AI 추천 레시피를 불러오는 중입니다.");
 
   // -------------------- 무한 스크롤 상태 --------------------
   const [page, setPage] = useState<number>(1);
@@ -153,6 +158,29 @@ const FoodListPage: React.FC = () => {
     };
   }, [resetObserver, loadFoods]);
 
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        const response = await RecipeApi.fetchRecommendedFoodsByLikes();
+        setRecommendedRecipes(response);
+        setRecommendationMessage(
+          response.length > 0
+            ? ""
+            : "좋아요한 음식 레시피가 쌓이면 취향 기반 AI 추천을 보여드릴게요."
+        );
+      } catch (error) {
+        if (error instanceof AxiosError && error.response?.status === 401) {
+          setRecommendationMessage("로그인 후 좋아요를 누르면 AI 추천 레시피를 받아볼 수 있어요.");
+          return;
+        }
+        console.error("추천 레시피 조회 중 에러:", error);
+        setRecommendationMessage("지금은 추천 레시피를 불러오지 못했어요.");
+      }
+    };
+
+    loadRecommendations();
+  }, []);
+
   /**
    * 레시피 상세 페이지로 이동하는 함수
    *
@@ -167,13 +195,6 @@ const FoodListPage: React.FC = () => {
     // 이제는 type을 포함하여 /foodrecipes/{type}/{id}로 이동합니다.
     navigate(`/foodrecipe/detail/${id}/food`);
   };
-
-  // -------------------- 예시 추천 레시피 데이터 (테스트용) --------------------
-  const recommendedRecipes = [
-    { id: "rec_1", name: "비빔밥", image: placeholder2 },
-    { id: "rec_2", name: "김치찌개", image: placeholder2 },
-    { id: "rec_3", name: "불고기", image: placeholder2 },
-  ];
 
   // -------------------- 필터 옵션 데이터 --------------------
   const filterTypes = ["카테고리", "조리방법"];
@@ -216,25 +237,41 @@ const FoodListPage: React.FC = () => {
         <h2 className="text-xl md:text-2xl font-bold mb-4 text-kakiBrown dark:text-softBeige">
           Recipes For You
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recommendedRecipes.map((item) => (
-            <div
-              key={item.id}
-              className="border rounded overflow-hidden shadow border-kakiBrown dark:border-darkKaki"
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-kakiBrown dark:text-softBeige">
-                  {item.name}
-                </h3>
+        {recommendedRecipes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recommendedRecipes.map((item) => (
+              <div
+                key={item.id}
+                className="border rounded overflow-hidden shadow border-kakiBrown dark:border-darkKaki cursor-pointer transition-transform hover:scale-105"
+                onClick={() => handleSelectFood(item.id)}
+              >
+                <img
+                  src={item.image || placeholder2}
+                  alt={item.name}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-kakiBrown dark:text-softBeige">
+                    {item.name}
+                  </h3>
+                  <p className="mt-2 text-sm text-kakiBrown dark:text-softBeige">
+                    Category: {item.category || "기타"}
+                  </p>
+                  <p className="mt-1 text-sm text-kakiBrown dark:text-softBeige">
+                    Likes: {item.like ?? 0}
+                  </p>
+                  <p className="mt-3 text-sm text-warmOrange dark:text-orange-300">
+                    {item.reason}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-kakiBrown px-6 py-8 text-center text-kakiBrown dark:border-darkKaki dark:text-softBeige">
+            {recommendationMessage}
+          </div>
+        )}
       </section>
 
       {/* 필터 옵션 섹션 */}

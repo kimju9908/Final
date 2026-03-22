@@ -54,7 +54,7 @@ public class AddCocktailRecipeService {
         recipeData.put("preparation", recipeRequest.getPreparation());
         recipeData.put("abv", recipeRequest.getAbv());
         recipeData.put("like", 0L);
-        recipeData.put("report", 0L);
+        recipeData.put("dislike", 0L);
         recipeData.put("author", memberId);
         recipeData.put("image", image);
 

@@ -184,36 +184,36 @@ public class ElasticService {
 
 
 	@Scheduled(fixedRate = 60000) // 60초마다 실행
-	public void updateLikesAndReports() {
+	public void updateReactionCounts() {
 		try {
-			List<Map<String, Object>> likeReportData = redisService.getAllLikesAndReports();
-			if (likeReportData.isEmpty()) {
-				log.info("[updateLikesAndReports] No like or report data found in Redis.");
+			List<Map<String, Object>> reactionCountData = redisService.getAllReactionCounts();
+			if (reactionCountData.isEmpty()) {
+				log.info("[updateReactionCounts] No reaction count data found in Redis.");
 				return;
 			}
 
 			Map<String, Object> requestBody = new HashMap<>();
-			requestBody.put("like_report_data", likeReportData);
+			requestBody.put("reaction_count_data", reactionCountData);
 
 			String jsonData = objectMapper.writeValueAsString(requestBody);
-			URI uri = new URI(flaskBaseUrl + "/update/likes-reports");
+			URI uri = new URI(flaskBaseUrl + "/update/reaction-counts");
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			HttpEntity<String> requestEntity = new HttpEntity<>(jsonData, headers);
 
 			ResponseEntity<String> response = restTemplate.postForEntity(uri, requestEntity, String.class);
-			log.info("[updateLikesAndReports] Response from Flask: {}", response.getBody());
+			log.info("[updateReactionCounts] Response from Flask: {}", response.getBody());
 
 			// Redis에서 데이터 삭제
 			redisTemplate.execute((RedisCallback<Void>) connection -> {
 				connection.flushAll();  // 모든 레디스 데이터를 삭제
 				return null;
 			});
-			log.info("[updateLikesAndReports] All data cleared from Redis.");
+			log.info("[updateReactionCounts] All data cleared from Redis.");
 
 		} catch (Exception e) {
-			log.error("[updateLikesAndReports] Error sending like/report data to Flask: {}", e.getMessage());
+			log.error("[updateReactionCounts] Error sending reaction count data to Flask: {}", e.getMessage());
 		}
 	}
 

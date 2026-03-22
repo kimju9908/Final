@@ -6,7 +6,7 @@ import Comment from '../comment/Comment';
 
 import RecipeApi from '../../api/RecipeApi';
 
- import { FoodResDto } from '../../api/dto/RecipeDto';
+ import { FoodResDto, ReactionSummaryDto } from '../../api/dto/RecipeDto';
 
 import Profile from '../profile/Profile';
 import LikeReportButtons from '../LikeReportButton'; 
@@ -17,6 +17,7 @@ import LikeReportButtons from '../LikeReportButton';
 
 const RecipeDetail: React.FC = () => {
     const [recipe, setRecipe] = useState<FoodResDto | null>(null);
+    const [reactionSummary, setReactionSummary] = useState<ReactionSummaryDto | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const { id, type } = useParams<{ id: string; type: string }>();
@@ -25,8 +26,12 @@ const RecipeDetail: React.FC = () => {
     useEffect(() => {
         const getRecipe = async () => {
             try {
-                const data = await RecipeApi.fetchRecipeDetail(id!, type!); // ✅ RecipeApi에서 가져오기
-                setRecipe(data);
+                const [detail, summary] = await Promise.all([
+                    RecipeApi.fetchRecipeDetail(id!, type!),
+                    RecipeApi.fetchReactionSummary(id!, type!),
+                ]);
+                setRecipe(detail);
+                setReactionSummary(summary);
             } catch (err) {
                 setError('레시피 상세 정보를 불러오는 데 실패했습니다.');
             } finally {
@@ -41,6 +46,13 @@ const RecipeDetail: React.FC = () => {
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
     if (!recipe) return <Alert severity="warning">레시피를 찾을 수 없습니다.</Alert>;
+    const resolvedReactionSummary = reactionSummary ?? {
+        postId: id ?? "",
+        type: type ?? "",
+        likeCount: recipe.like,
+        dislikeCount: recipe.dislike,
+        currentUserReaction: "NONE" as const,
+    };
 
     return (
         <Box sx={recipeDetailStyles.container}>
@@ -53,12 +65,12 @@ const RecipeDetail: React.FC = () => {
 
                     <Grid container spacing={3} sx={recipeDetailStyles.gridContainer}>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.2rem" }}>
+                            <Typography variant="body1" color="text.secondary" sx={recipeDetailStyles.typography}>
                                 <strong>조리 방법:</strong> {recipe.cookingMethod}
                             </Typography>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.2rem" }}>
+                            <Typography variant="body1" color="text.secondary" sx={recipeDetailStyles.typography}>
                                 <strong>요리 종류:</strong> {recipe.category}
                             </Typography>
                         </Grid>
@@ -70,7 +82,7 @@ const RecipeDetail: React.FC = () => {
                     </Box>
 
                     <Grid item xs={12} sx={recipeDetailStyles.descriptionBox}>
-                        <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.2rem" }}>
+                        <Typography variant="body1" color="text.secondary" sx={recipeDetailStyles.typography}>
                             <strong>팁:</strong> {recipe.description}
                         </Typography>
                     </Grid>
@@ -83,7 +95,7 @@ const RecipeDetail: React.FC = () => {
                     <Grid container spacing={3} sx={recipeDetailStyles.ingredientGrid}>
                         {recipe.ingredients?.map((ingredient, index) => (
                             <Grid item xs={12} sm={6} md={4} key={index}>
-                                <Typography variant="body1" sx={{ fontSize: "1.2rem" }}>
+                                <Typography variant="body1" sx={recipeDetailStyles.typography}>
                                     {`${ingredient.ingredient}: ${ingredient.amount}`}
                                 </Typography>
                             </Grid>
@@ -116,7 +128,7 @@ const RecipeDetail: React.FC = () => {
                                     {`Step ${index + 1}`}
                                 </Typography>
                                 <Divider sx={recipeDetailStyles.divider} />
-                                <Typography variant="body1" sx={{ fontSize: "1.2rem" }}>
+                                <Typography variant="body1" sx={recipeDetailStyles.typography}>
                                     {manual.text}
                                 </Typography>
                             </Grid>
@@ -127,11 +139,15 @@ const RecipeDetail: React.FC = () => {
                         <LikeReportButtons
                             postId={id ?? ""}
                             type={type ?? ""}
-                            likes={recipe.like}
-                            reports={recipe.report}
-                            updateCounts={(newLikes, newReports) =>
-                                setRecipe((prev) => (prev ? { ...prev, like: newLikes, report: newReports } : prev))
-                            }
+                            reactionSummary={resolvedReactionSummary}
+                            onReactionChange={(summary) => {
+                                setReactionSummary(summary);
+                                setRecipe((prev) => (
+                                    prev
+                                        ? { ...prev, like: summary.likeCount, dislike: summary.dislikeCount }
+                                        : prev
+                                ));
+                            }}
                         />
                     </Box>
 

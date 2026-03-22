@@ -64,6 +64,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 				.authorizeRequests()
 				// 여기에서 Forum 및 관련 엔드포인트를 permitAll 처리합니다.
 				.antMatchers("/forum/**", "/api/forums/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/recipe/reaction-summary").permitAll()
 				.antMatchers(
 						"/", "/static/**", "/auth/**", "/ws/**", "/oauth2/**",
 						"/api/v1/auth/**", "/api/v1/payments/**", "/chat/**", "/flask/**", "/review/**", "/comments/**",

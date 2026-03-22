@@ -1,136 +1,254 @@
 package com.kh.back.service.redis;
 
+import com.kh.back.constant.ReactionType;
+import com.kh.back.dto.recipe.res.ReactionSummaryResDto;
 import com.kh.back.service.action.ReActionService;
 import com.kh.back.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-@Service @RequiredArgsConstructor
+@Service
+@RequiredArgsConstructor
 @Slf4j
 public class RedisService {
-	
-	private final RedisTemplate<String, Object> redisTemplate;
-	private final MemberService memberService;
-	private final ReActionService reActionService;
 
-	// Redis에 값 저장
-	public void setValue(String key, String value) {
-		redisTemplate.opsForValue().set(key, value);
-	}
-	// Redis에서 값 조회
-	public String getValue(String key) {
-		return (String) redisTemplate.opsForValue().get(key);
-	}
-	// Redis에서 값 삭제
-	public void deleteValue(String key) {
-		redisTemplate.delete(key);
-	}
-	// 좋아요 수 증가
-	public Long incrementLikes(String postId) {
-		String key = "likes:" + postId;
-		return redisTemplate.opsForValue().increment(key, 1); // 1씩 증가
-	}
+    private static final String POST_PREFIX = "post:";
+    private static final String REACTIONS_SUFFIX = ":reactions";
+    private static final String LIKE_COUNT_SUFFIX = ":likeCount";
+    private static final String DISLIKE_COUNT_SUFFIX = ":dislikeCount";
 
-	// 좋아요 수 감소
-	public Long decrementLikes(String postId) {
-		String key = "likes:" + postId;
-		return redisTemplate.opsForValue().decrement(key, 1); // 1씩 감소
-	}
-	// 좋아요 수 조회
-	public Long getLikes(String postId) {
-		String key = "likes:" + postId;
-		String value = (String) redisTemplate.opsForValue().get(key);  // Redis에서 값 가져오기
-		log.warn("현재 좋아요 수 : {}", value);
-		if (value != null) {
-			return Long.parseLong(value);  // 문자열을 Long으로 변환
-		}
-		return 0L;  // 기본값
-	}
-	public Long getReports(String postId) {
-		String key = "reports:" + postId;
-		String value = (String) redisTemplate.opsForValue().get(key);
-		if (value != null) {
-			return Long.parseLong(value);
-		}
-		return 0L; // 기본값
-	}
-	public boolean updateRecipeCount(Authentication authentication, String action, String postId, String type, boolean increase) {
-		try {
-			String key = action + ":" + postId + ":" + type; // ex) likes:123:recipe 또는 reports:123:recipe
-			if (increase) {
-				redisTemplate.opsForValue().increment(key, 1); // +1 증가
-				log.info("Increased value in Redis for key: {}", key);  // 로그 추가
-				reActionService.updateAction(authentication, action, postId);
-			} else {
-				String value = Optional.ofNullable((String) redisTemplate.opsForValue().get(key)).orElse("0");
-				redisTemplate.opsForValue().set(key, value); // null일 경우 0으로 설정
-				redisTemplate.opsForValue().decrement(key, 1); // -1 감소
-				log.info("Decreased value in Redis for key: {}", key);  // 로그 추가
-				reActionService.deleteAction(authentication, postId, action);
-			}
-			return true;  // 성공
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false; // 실패
-		}
-	}
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final MemberService memberService;
+    private final ReActionService reActionService;
 
-	public List<Map<String, Object>> getAllLikesAndReports() {
-		List<Map<String, Object>> result = new ArrayList<>();
-		// Redis에서 "likes:*" 패턴에 맞는 모든 키를 찾기
-		Set<String> likeKeys = redisTemplate.keys("likes:*");
-		if (likeKeys != null) {
-			for (String key : likeKeys) {
-				// 키에서 postId와 type 추출
-				String[] parts = key.split(":");
-				String postId = parts[1]; // Elasticsearch의 _id
-				String type = parts[2];   // type (cocktail 또는 food)
-				// Redis에서 해당 키의 값을 가져오기
-				String value = (String) redisTemplate.opsForValue().get(key);
-				if (value != null) {
-					Map<String, Object> entry = new HashMap<>();
-					entry.put("postId", postId); // Elasticsearch의 _id
-					entry.put("type", type);     // type
-					entry.put("value", Long.parseLong(value)); // 값
-					entry.put("keyType", "like"); // 좋아요인지 신고인지 구분
-					result.add(entry);
-				}
-			}
-		}
-		// Redis에서 "reports:*" 패턴에 맞는 모든 키를 찾기
-		Set<String> reportKeys = redisTemplate.keys("reports:*");
-		if (reportKeys != null) {
-			for (String key : reportKeys) {
-				// 키에서 postId와 type 추출
-				String[] parts = key.split(":");
-				String postId = parts[1]; // Elasticsearch의 _id
-				String type = parts[2];   // type (cocktail 또는 food)
+    public ReactionType getCurrentUserReaction(Authentication authentication, String postId, String type) {
+        if (authentication == null) {
+            return ReactionType.NONE;
+        }
 
-				// Redis에서 해당 키의 값을 가져오기
-				String value = (String) redisTemplate.opsForValue().get(key);
-				if (value != null) {
-					Map<String, Object> entry = new HashMap<>();
-					entry.put("postId", postId); // Elasticsearch의 _id
-					entry.put("type", type);     // type
-					entry.put("value", Long.parseLong(value)); // 값
-					entry.put("keyType", "report"); // 좋아요인지 신고인지 구분
-					result.add(entry);
-				}
-			}
-		}
+        String userId = String.valueOf(memberService.getMemberId(authentication));
+        return getCurrentReactionInternal(authentication, postId, type, userId);
+    }
 
-		return result;
-	}
+    public ReactionSummaryResDto getReactionSummary(
+            Authentication authentication,
+            String postId,
+            String type,
+            long baseLikeCount,
+            long baseDislikeCount
+    ) {
+        long likeCount = getOrInitializeCount(getLikeCountKey(postId, type), baseLikeCount);
+        long dislikeCount = getOrInitializeCount(getDislikeCountKey(postId, type), baseDislikeCount);
+        ReactionType currentReaction = getCurrentUserReaction(authentication, postId, type);
 
+        return buildSummary(postId, type, likeCount, dislikeCount, currentReaction);
+    }
 
+    public ReactionSummaryResDto updateReaction(
+            Authentication authentication,
+            String postId,
+            String type,
+            ReactionType requestedReaction,
+            long baseLikeCount,
+            long baseDislikeCount
+    ) {
+        if (authentication == null) {
+            throw new InsufficientAuthenticationException("반응 기능은 로그인 후 사용할 수 있습니다.");
+        }
+        if (requestedReaction == null || requestedReaction == ReactionType.NONE) {
+            throw new IllegalArgumentException("요청 반응값은 LIKE 또는 DISLIKE 여야 합니다.");
+        }
 
+        String userId = String.valueOf(memberService.getMemberId(authentication));
+        String likeCountKey = getLikeCountKey(postId, type);
+        String dislikeCountKey = getDislikeCountKey(postId, type);
 
+        long likeCount = getOrInitializeCount(likeCountKey, baseLikeCount);
+        long dislikeCount = getOrInitializeCount(dislikeCountKey, baseDislikeCount);
+        ReactionType currentReaction = getCurrentReactionInternal(authentication, postId, type, userId);
+        ReactionType nextReaction = resolveNextReaction(currentReaction, requestedReaction);
+
+        reActionService.syncReaction(authentication, postId, type, nextReaction);
+
+        long updatedLikeCount = likeCount;
+        long updatedDislikeCount = dislikeCount;
+
+        if (currentReaction == ReactionType.LIKE && nextReaction != ReactionType.LIKE) {
+            updatedLikeCount = decrementNonNegative(likeCountKey, updatedLikeCount);
+        }
+        if (currentReaction == ReactionType.DISLIKE && nextReaction != ReactionType.DISLIKE) {
+            updatedDislikeCount = decrementNonNegative(dislikeCountKey, updatedDislikeCount);
+        }
+        if (nextReaction == ReactionType.LIKE && currentReaction != ReactionType.LIKE) {
+            updatedLikeCount = increment(likeCountKey, updatedLikeCount);
+        }
+        if (nextReaction == ReactionType.DISLIKE && currentReaction != ReactionType.DISLIKE) {
+            updatedDislikeCount = increment(dislikeCountKey, updatedDislikeCount);
+        }
+
+        updateUserReactionState(postId, type, userId, nextReaction);
+
+        log.info("[updateReaction] memberId={}, postId={}, type={}, currentReaction={}, requestedReaction={}, nextReaction={}, likeCount={}, dislikeCount={}",
+                userId, postId, type, currentReaction, requestedReaction, nextReaction, updatedLikeCount, updatedDislikeCount);
+
+        return buildSummary(postId, type, updatedLikeCount, updatedDislikeCount, nextReaction);
+    }
+
+    public List<Map<String, Object>> getAllReactionCounts() {
+        Set<String> baseKeys = collectReactionBaseKeys();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (String baseKey : baseKeys) {
+            String[] parts = parsePostKey(baseKey);
+            if (parts == null) {
+                continue;
+            }
+
+            long likeCount = readLong(getLikeCountKey(parts[0], parts[1])).orElse(0L);
+            long dislikeCount = readLong(getDislikeCountKey(parts[0], parts[1])).orElse(0L);
+            result.add(Map.of(
+                    "postId", parts[0],
+                    "type", parts[1],
+                    "likeCount", likeCount,
+                    "dislikeCount", dislikeCount
+            ));
+        }
+
+        return result;
+    }
+
+    private ReactionType getCurrentReactionInternal(Authentication authentication, String postId, String type, String userId) {
+        Object storedReaction = hashOps().get(getReactionHashKey(postId, type), userId);
+        if (storedReaction != null) {
+            return ReactionType.valueOf(String.valueOf(storedReaction));
+        }
+
+        ReactionType reactionFromDb = reActionService.getCurrentReaction(authentication, postId, type);
+        if (reactionFromDb != ReactionType.NONE) {
+            hashOps().put(getReactionHashKey(postId, type), userId, reactionFromDb.name());
+        }
+        return reactionFromDb;
+    }
+
+    private void updateUserReactionState(String postId, String type, String userId, ReactionType nextReaction) {
+        String reactionHashKey = getReactionHashKey(postId, type);
+        if (nextReaction == ReactionType.NONE) {
+            hashOps().delete(reactionHashKey, userId);
+            return;
+        }
+        hashOps().put(reactionHashKey, userId, nextReaction.name());
+    }
+
+    private ReactionType resolveNextReaction(ReactionType currentReaction, ReactionType requestedReaction) {
+        return currentReaction == requestedReaction ? ReactionType.NONE : requestedReaction;
+    }
+
+    private long getOrInitializeCount(String key, long initialValue) {
+        return readLong(key).orElseGet(() -> {
+            redisTemplate.opsForValue().set(key, String.valueOf(initialValue));
+            return initialValue;
+        });
+    }
+
+    private long increment(String key, long fallback) {
+        Long updated = redisTemplate.opsForValue().increment(key, 1);
+        return updated != null ? updated : fallback + 1;
+    }
+
+    private long decrementNonNegative(String key, long currentValue) {
+        long nextValue = Math.max(currentValue - 1, 0);
+        redisTemplate.opsForValue().set(key, String.valueOf(nextValue));
+        return nextValue;
+    }
+
+    private Set<String> collectReactionBaseKeys() {
+        Set<String> result = new LinkedHashSet<>();
+        addMatchingKeys(result, "*" + REACTIONS_SUFFIX);
+        addMatchingKeys(result, "*" + LIKE_COUNT_SUFFIX);
+        addMatchingKeys(result, "*" + DISLIKE_COUNT_SUFFIX);
+        return result;
+    }
+
+    private void addMatchingKeys(Set<String> collector, String pattern) {
+        Set<String> keys = redisTemplate.keys(pattern);
+        if (keys == null) {
+            return;
+        }
+        keys.stream()
+                .map(this::stripKeySuffix)
+                .filter(Objects::nonNull)
+                .forEach(collector::add);
+    }
+
+    private String stripKeySuffix(String key) {
+        if (key.endsWith(REACTIONS_SUFFIX)) {
+            return key.substring(0, key.length() - REACTIONS_SUFFIX.length());
+        }
+        if (key.endsWith(LIKE_COUNT_SUFFIX)) {
+            return key.substring(0, key.length() - LIKE_COUNT_SUFFIX.length());
+        }
+        if (key.endsWith(DISLIKE_COUNT_SUFFIX)) {
+            return key.substring(0, key.length() - DISLIKE_COUNT_SUFFIX.length());
+        }
+        return null;
+    }
+
+    private String[] parsePostKey(String baseKey) {
+        String[] parts = baseKey.split(":");
+        if (parts.length != 3 || !"post".equals(parts[0])) {
+            log.warn("[parsePostKey] Invalid Redis base key={}", baseKey);
+            return null;
+        }
+        return new String[]{parts[1], parts[2]};
+    }
+
+    private Optional<Long> readLong(String key) {
+        Object value = redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            return Optional.empty();
+        }
+        if (value instanceof Number number) {
+            return Optional.of(number.longValue());
+        }
+        return Optional.of(Long.parseLong(String.valueOf(value)));
+    }
+
+    private HashOperations<String, Object, Object> hashOps() {
+        return redisTemplate.opsForHash();
+    }
+
+    private ReactionSummaryResDto buildSummary(String postId, String type, long likeCount, long dislikeCount, ReactionType currentReaction) {
+        return ReactionSummaryResDto.builder()
+                .postId(postId)
+                .type(type)
+                .likeCount(likeCount)
+                .dislikeCount(dislikeCount)
+                .currentUserReaction(currentReaction)
+                .build();
+    }
+
+    private String getReactionHashKey(String postId, String type) {
+        return POST_PREFIX + postId + ":" + type + REACTIONS_SUFFIX;
+    }
+
+    private String getLikeCountKey(String postId, String type) {
+        return POST_PREFIX + postId + ":" + type + LIKE_COUNT_SUFFIX;
+    }
+
+    private String getDislikeCountKey(String postId, String type) {
+        return POST_PREFIX + postId + ":" + type + DISLIKE_COUNT_SUFFIX;
+    }
 }
-

@@ -16,6 +16,6 @@ public class CocktailReqDto {
     private String category;
     private String description;
     private Long like;
-    private Long report;
+    private Long dislike;
     private MultipartFile image;
 }

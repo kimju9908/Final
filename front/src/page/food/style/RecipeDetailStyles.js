@@ -20,6 +20,7 @@ const recipeDetailStyles = {
         height: 300,
         objectFit: 'cover',
     },
+    typography: { fontSize: "1.2rem" },
 };
 
 export default recipeDetailStyles;

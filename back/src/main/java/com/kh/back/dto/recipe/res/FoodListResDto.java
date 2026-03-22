@@ -22,7 +22,9 @@ public class FoodListResDto extends SearchListResDto {
     private String image;
 
     private Long like;
-    private Long report;
+    @JsonProperty("dislike")
+    @JsonAlias({"dislike", "report"})
+    private Long dislike;
 
     // 입력은 "RCP_PAT2"를 받지만, 출력은 "category"로 보냄
     @JsonProperty("category")

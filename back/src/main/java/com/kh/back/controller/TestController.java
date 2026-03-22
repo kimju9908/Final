@@ -21,16 +21,6 @@ public class TestController {
 	private final RedisService redisService;
 	private final ElasticService elasticService;
 
-	@PostMapping("/incr")
-	public Long incr() {
-		return redisService.incrementLikes("0");
-	}
-
-	@GetMapping("/total")
-	public Long total() {
-		return redisService.getLikes("0");
-	}
-
 	@GetMapping("/search")
 	public ResponseEntity<List<SearchListResDto>> search(
 			@RequestParam(name = "q", required = false, defaultValue = "") String q,

@@ -29,7 +29,7 @@ def load_mapping(file_path):
     """
     with open(file_path, "r") as f:
         return json.load(f)
-
+@app.route("/upload/index", methods=["POST"])
 def create_index_if_not_exists(index_name, mapping_file=None):
     """
     인덱스가 없으면 매핑을 설정하고 인덱스를 생성하는 함수
@@ -96,67 +96,79 @@ def upload_one():
         return jsonify({"message": "Data uploaded successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+@app.route("/update/reaction-counts", methods=["POST"])
 @app.route("/update/likes-reports", methods=["POST"])
-def update_likes_reports():
+def update_reaction_counts():
     """
-    Redis에서 받은 좋아요(like) 및 신고(report) 데이터를
-    Elasticsearch 문서에 추가하는 엔드포인트
+    Redis에서 받은 좋아요/싫어요 절대 카운트를
+    Elasticsearch 문서에 반영하는 엔드포인트
     """
     try:
         data = request.json
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        like_report_data = data.get("like_report_data", [])  # Redis에서 받은 데이터 리스트
-        if not like_report_data:
-            return jsonify({"error": "No like or report data provided"}), 400
+        reaction_count_data = data.get("reaction_count_data", [])
+        if not reaction_count_data:
+            legacy_like_report_data = data.get("like_report_data", [])
+            if legacy_like_report_data:
+                reaction_count_data = []
+                grouped = {}
+                for entry in legacy_like_report_data:
+                    post_id = entry.get("postId")
+                    content_type = entry.get("type")
+                    if not post_id or not content_type:
+                        continue
+                    key = (post_id, content_type)
+                    grouped.setdefault(key, {"postId": post_id, "type": content_type, "likeCount": 0, "dislikeCount": 0})
+                    key_type = entry.get("keyType")
+                    value = entry.get("value", 0)
+                    if key_type == "like":
+                        grouped[key]["likeCount"] = value
+                    elif key_type in ("report", "dislike"):
+                        grouped[key]["dislikeCount"] = value
+                reaction_count_data = list(grouped.values())
 
-        for entry in like_report_data:
+        if not reaction_count_data:
+            return jsonify({"error": "No reaction count data provided"}), 400
+
+        for entry in reaction_count_data:
             post_id = entry.get("postId")  # Elasticsearch의 _id
             content_type = entry.get("type")  # "cocktail" 또는 "food"
-            value = entry.get("value")  # Redis에서 받은 증가값
-            key_type = entry.get("keyType")  # "like" 또는 "report"
+            like_count = entry.get("likeCount")
+            dislike_count = entry.get("dislikeCount")
 
-            if not post_id or not content_type or value is None or not key_type:
+            if not post_id or not content_type or like_count is None or dislike_count is None:
                 app.logger.warning(f"Skipping entry due to missing fields: {entry}")
-                continue  # 필수 정보가 없으면 넘어감
+                continue
 
-            # type에 따라 적절한 Elasticsearch 인덱스 찾기
             index_name, mapping_file = get_index_and_mapping(content_type)
             if not index_name:
                 app.logger.error(f"Invalid content type: {content_type}")
-                continue  # 유효한 인덱스가 없으면 건너뜀
+                continue
 
             try:
                 app.logger.info(f"Fetching document {post_id} from index {index_name}")
                 doc = es.get(index=index_name, id=post_id, ignore=404)
 
-                # 'found' 키를 안전하게 확인하고, 문서가 존재하는지 확인
                 if doc.get("found", False):
-                    current_like = doc["_source"].get("like", 0)
-                    current_report = doc["_source"].get("report", 0)
-
-                    # 기존 값에 Redis에서 받은 값 추가
-                    update_data = {}
-                    if key_type == "like":
-                        update_data["like"] = current_like + value
-                    elif key_type == "report":
-                        update_data["report"] = current_report + value
-
-                    if update_data:
-                        app.logger.info(f"Updating document {post_id} in index {index_name} with {update_data}")
-                        es.update(index=index_name, id=post_id, body={"doc": update_data})
+                    update_data = {
+                        "like": like_count,
+                        "dislike": dislike_count
+                    }
+                    app.logger.info(f"Updating document {post_id} in index {index_name} with {update_data}")
+                    es.update(index=index_name, id=post_id, body={"doc": update_data})
                 else:
                     app.logger.error(f"Document with ID {post_id} not found in index {index_name}")
             except Exception as e:
-                error_message = traceback.format_exc()  # 전체 에러 스택 트레이스
+                error_message = traceback.format_exc()
                 app.logger.error(
                     f"Elasticsearch update error for document {post_id} in index {index_name}:\n{error_message}")
 
-        return jsonify({"message": "Likes and Reports updated successfully"}), 200
+        return jsonify({"message": "Reaction counts updated successfully"}), 200
     except Exception as e:
-        error_message = traceback.format_exc()  # 전체 에러 스택 트레이스
-        app.logger.error(f"Unhandled error in /update/likes-reports:\n{error_message}")
+        error_message = traceback.format_exc()
+        app.logger.error(f"Unhandled error in /update/reaction-counts:\n{error_message}")
         return jsonify({"error": str(e)}), 500
 
 

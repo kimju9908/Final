@@ -2,9 +2,14 @@ package com.kh.back.controller.recipe;
 
 import com.kh.back.dto.recipe.request.AddCocktailRecipeDto;
 import com.kh.back.dto.recipe.request.AddFoodRecipeDto;
+import com.kh.back.dto.recipe.request.ReactionUpdateReqDto;
+import com.kh.back.dto.recipe.res.CocktailResDto;
+import com.kh.back.dto.recipe.res.FoodResDto;
+import com.kh.back.dto.recipe.res.ReactionSummaryResDto;
 import com.kh.back.service.member.MemberService;
 import com.kh.back.service.recipe.AddCocktailRecipeService;
 import com.kh.back.service.recipe.AddFoodRecipeService;
+import com.kh.back.service.recipe.RecipeService;
 import com.kh.back.service.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +34,8 @@ public class RecipeDetailController {
     private RestTemplate restTemplate;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private RecipeService recipeQueryService;
 
     @PostMapping("/save-recipe")
     public ResponseEntity<String> saveRecipe(Authentication authentication, @ModelAttribute AddFoodRecipeDto recipeRequest) {
@@ -58,13 +65,57 @@ public class RecipeDetailController {
     }
 
 
-    @PostMapping("/updateCount")
-    public ResponseEntity<Boolean> updateRecipeCount(Authentication authentication,@RequestParam String action, // "likes" or "reports"
-                                                     @RequestParam String postId,
-                                                     @RequestParam String type,
-                                                     @RequestParam boolean increase) {
-        boolean isUpdated = redisService.updateRecipeCount(authentication,action, postId, type, increase);
-        return ResponseEntity.ok(isUpdated);  // 성공 여부 (true/false) 반환
+    @PostMapping("/reaction")
+    public ResponseEntity<ReactionSummaryResDto> updateReaction(
+            Authentication authentication,
+            @RequestBody ReactionUpdateReqDto requestDto
+    ) {
+        Object recipeDetail = recipeQueryService.getRecipeDetail(requestDto.getPostId(), requestDto.getType());
+        ReactionSummaryResDto response = redisService.updateReaction(
+                authentication,
+                requestDto.getPostId(),
+                requestDto.getType(),
+                requestDto.getRequestedReaction(),
+                extractLikeCount(recipeDetail),
+                extractDislikeCount(recipeDetail)
+        );
+        return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/reaction-summary")
+    public ResponseEntity<ReactionSummaryResDto> getReactionSummary(
+            Authentication authentication,
+            @RequestParam String postId,
+            @RequestParam String type
+    ) {
+        Object recipeDetail = recipeQueryService.getRecipeDetail(postId, type);
+        ReactionSummaryResDto response = redisService.getReactionSummary(
+                authentication,
+                postId,
+                type,
+                extractLikeCount(recipeDetail),
+                extractDislikeCount(recipeDetail)
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    private long extractLikeCount(Object recipeDetail) {
+        if (recipeDetail instanceof FoodResDto foodResDto) {
+            return foodResDto.getLike();
+        }
+        if (recipeDetail instanceof CocktailResDto cocktailResDto) {
+            return cocktailResDto.getLike();
+        }
+        return 0L;
+    }
+
+    private long extractDislikeCount(Object recipeDetail) {
+        if (recipeDetail instanceof FoodResDto foodResDto) {
+            return foodResDto.getDislike();
+        }
+        if (recipeDetail instanceof CocktailResDto cocktailResDto) {
+            return cocktailResDto.getDislike();
+        }
+        return 0L;
+    }
 }

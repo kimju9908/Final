@@ -43,7 +43,9 @@ public class FoodResDto extends SearchResDto {
     private List<FoodManualDto> instructions;
 
     private int like;
-    private int report;
+    @JsonProperty("dislike")
+    @JsonAlias({"dislike", "report"})
+    private int dislike;
     private int author;
 
     @Getter

@@ -24,7 +24,7 @@
         "preparation": "얼음과 함께 흔든 후 차가운 칵테일 글라스에 스트레인한다.",
         "abv": 39.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%A6%E1%84%89%E1%85%B3%E1%84%91%E1%85%A5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=305dcc2d-38d0-4adb-a889-c91b0d3fc067"
     },
@@ -52,7 +52,7 @@
         "preparation": "얼음과 함께 흔들어 차가운 칵테일 글라스에 스트레인한다.",
         "abv": 28.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%A1%E1%84%8F%E1%85%A1%E1%84%83%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?alt=media&token=b802c315-a34d-4ae7-aa4f-6120da18b8ab"
     },
@@ -82,7 +82,7 @@
         "preparation": "얼음이 채워진 올드 패션드 글라스에 재료를 넣고 부드럽게 저어준다.",
         "abv": 27.33,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -106,7 +106,7 @@
         "preparation": "모든 재료를 얼음과 함께 저은 후, 칵테일 글라스에 스트레인한다.",
         "abv": 27.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%85%E1%85%A9%E1%84%8C%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=37b6386e-529d-4c25-99f5-02749711a4b8"
     },
@@ -135,7 +135,7 @@
         "preparation": "올드 패션드 글래스에 설탕 큐브를 넣고 비터스로 적시고, 물을 몇 방울 추가합니다. 설탕이 녹을 때까지 머들 합니다. 얼음을 넣고 위스키를 추가합니다.",
         "abv": 40,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A9%E1%86%AF%E1%84%83%E1%85%B3%20%E1%84%91%E1%85%A2%E1%84%89%E1%85%A7%E1%86%AB%E1%84%83%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.jpg?alt=media&token=4a4cbb67-7932-4b81-ba98-71d645c45af4"
     },
@@ -170,7 +170,7 @@
         "preparation": "모든 재료를 얼음과 함께 저은 후, 마티니 글래스에 스트레인합니다.",
         "abv": 30,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%90%E1%85%A5%E1%86%A8%E1%84%89%E1%85%B5%E1%84%83%E1%85%A9-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=4e24d3aa-c2c8-46bd-ac31-491226071522"
     },
@@ -204,7 +204,7 @@
         "preparation": "민트와 설탕, 라임 주스를 머들 합니다. 탄산수를 조금 추가하고 얼음 조각을 넣습니다. 럼을 붓고 탄산수로 채웁니다. 빨대를 넣고 서빙합니다.",
         "abv": 15,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A9%E1%84%92%E1%85%B5%E1%84%90%E1%85%A9-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=84157fd4-2b16-4c63-89e7-cffbb8814604"
     },
@@ -231,7 +231,7 @@
         "preparation": "하이볼 글래스에 얼음을 넣고 모든 재료를 넣은 후 부드럽게 저어줍니다. 필요하면 앙고스투라 비터스를 몇 대시 추가합니다.",
         "abv": 18,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%92%E1%85%A9%E1%86%AF%E1%84%89%E1%85%B3%20%E1%84%82%E1%85%A6%E1%86%A8-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=3ee778a3-f390-4f55-83ca-20fcd1cfebf7"
     },
@@ -280,7 +280,7 @@
         "preparation": "모든 재료를 쉐이커에 넣고 얼음과 함께 쉐이크합니다. 큰 글래스에 얼음을 넣고 쉐이크한 내용을 붓습니다. 앙고스투라 비터스를 ‘위에’ 뿌립니다.",
         "abv": 20,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A2%E1%86%AB%E1%84%90%E1%85%A5%E1%84%89%E1%85%B3%20%E1%84%91%E1%85%A5%E1%86%AB%E1%84%8E%E1%85%B5.webp?alt=media&token=73209491-be7d-429b-bb10-e927eb495250"
     },
@@ -309,7 +309,7 @@
         "preparation": "모든 재료를 하이볼 글래스에 얼음과 함께 넣고 섞습니다.",
         "abv": 14,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%B5%20%E1%84%87%E1%85%B3%E1%84%85%E1%85%B5%E1%84%8C%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=76e1b0a3-da41-48c1-95ac-371c4011103b"
     },
@@ -341,7 +341,7 @@
         "preparation": "모든 재료를 쉐이커에 넣고, 달걀 흰자까지 섞은 후, 얼음과 함께 다시 쉐이킹합니다. 올드 패션드 글래스에 따라 붓고 레몬 슬라이스로 장식합니다.",
         "abv": 18,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%B5%E1%84%89%E1%85%B3%E1%84%8F%E1%85%A9%20%E1%84%89%E1%85%A1%E1%84%8B%E1%85%AF-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=323c6d8e-3b4d-4eba-82bb-f742f58f0686"
     },
@@ -394,7 +394,7 @@
         "preparation": "모든 재료를 얼음이 채워진 하이볼 글래스에 넣고 부드럽게 저어준다. 빨대와 함께 제공한다.",
         "abv": 22,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%85%E1%85%A9%E1%86%BC%20%E1%84%8B%E1%85%A1%E1%84%8B%E1%85%B5%E1%86%AF%E1%84%85%E1%85%A2%E1%86%AB%E1%84%83%E1%85%B3%20%E1%84%8B%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%89%E1%85%B3%20%E1%84%90%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=105a75fc-254d-462b-a3cf-f10d22a785c1"
     },
@@ -426,7 +426,7 @@
         "preparation": "얼음을 넣고 흔들어 준 후, 마티니 글래스에 거른다.",
         "abv": 20,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A9%E1%84%87%E1%85%A5%20%E1%84%8F%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A5%E1%86%B8-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=77fccb2f-71bf-4b55-bee5-854a28d9e838"
     },
@@ -454,7 +454,7 @@
         "preparation": "얼음과 함께 흔들어 마티니 글래스에 거른다.",
         "abv": 18,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A6%E1%86%AB%E1%84%8C%E1%85%A6%E1%86%AF%20%E1%84%91%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%89%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=1fc716b6-4d2a-48cc-8dc7-dad947a8dd43"
     },
@@ -478,7 +478,7 @@
         "preparation": "샴페인 플루트에 오렌지 주스를 붓고, 그 위에 샴페인을 부은 후 부드럽게 저어준다. 참고: Buck's Fizz는 비슷하지만, 샴페인 2 부분에 오렌지 주스 1 부분으로 만든다.",
         "abv": 10,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%B5%E1%84%86%E1%85%A9%E1%84%89%E1%85%A1-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=62e9f84a-0399-4620-a660-46c03f019877"
     },
@@ -509,7 +509,7 @@
         "preparation": "계란 흰자 한 대시 (선택 사항: 사용할 경우 계란 흰자를 거품내기 위해 조금 더 세게 흔든다). 칵테일 셰이커에 얼음을 넣고 모든 재료를 넣은 후 흔든다. 칵테일 글라스에 스트레인 한다. ‘온 더 록’으로 제공할 경우, 얼음을 넣은 올드 패션드 글라스에 재료를 스트레인 한다.",
         "abv": 20,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%B1%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B5%20%E1%84%89%E1%85%A1%E1%84%8B%E1%85%AF-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=f2e4d27f-31f7-4c55-bd01-af9be9f3ae74"
     },
@@ -533,7 +533,7 @@
         "preparation": "하이볼 글라스에 얼음을 넣고 모든 재료를 넣은 후 부드럽게 저어준다.",
         "abv": 13,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B2%E1%84%83%E1%85%B3%E1%84%85%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%87%E1%85%A5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?alt=media&token=cc8ccb29-6585-4bf5-a457-0a27840f85a0"
     },
@@ -562,7 +562,7 @@
         "preparation": "하이볼 글라스에 모든 재료를 넣고 얼음을 넣은 후 섞는다.",
         "abv": 11,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%AE%E1%84%87%E1%85%A1%20%E1%84%85%E1%85%B5%E1%84%87%E1%85%B3%E1%84%85%E1%85%A6-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=161329ab-51f2-4e8a-9ff1-7daca8ca8604"
     },
@@ -591,7 +591,7 @@
         "preparation": "믹싱 글라스에 얼음을 넣고 재료를 섞은 후, 차게 한 칵테일 글라스에 스트레인 한다.",
         "abv": 33,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A2%E1%86%AB%E1%84%92%E1%85%A1%E1%84%90%E1%85%A1%E1%86%AB-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=2f6fb24f-19db-42b2-beb2-58ed889f4d87"
     },
@@ -619,7 +619,7 @@
         "preparation": "얼음을 넣고 흔든 후 칵테일 글라스에 스트레인 한다. 신선하게 간 넛맥을 뿌린다.",
         "abv": 21,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%A9%E1%84%85%E1%85%B3%E1%84%90%E1%85%A9%20%E1%84%91%E1%85%B3%E1%86%AF%E1%84%85%E1%85%B5%E1%86%B8-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=5a98f4af-5399-4617-8165-3e1d95d4538a"
     },
@@ -654,7 +654,7 @@
         "preparation": "진, 레몬 주스, 설탕 시럽을 얼음과 함께 흔든 후, 텀블러에 붓고 탄산수로 마무리한다.",
         "abv": 11,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8C%E1%85%B5%E1%86%AB%20%E1%84%91%E1%85%B5%E1%84%8C%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=25a9e844-0bb8-4660-a199-860525211213"
     },
@@ -684,7 +684,7 @@
         "preparation": "얼음과 함께 흔든 후 차가운 칵테일 글라스에 스트레인 한다.",
         "abv": 23,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A6%E1%84%89%E1%85%B3%E1%84%91%E1%85%B3%E1%84%85%E1%85%A6%E1%84%89%E1%85%A9%20%E1%84%86%E1%85%A1%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=f72f78eb-df0a-4199-8c02-284cb12db67c"
     },
@@ -713,7 +713,7 @@
         "preparation": "얼음과 함께 흔든 후 소금으로 장식한 칵테일 글라스에 스트레인 한다. (과일 마가리타는 위 레시피에 과일 퓌레 추가)",
         "abv": 22,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A1%E1%84%80%E1%85%A1%E1%84%85%E1%85%B5%E1%84%90%E1%85%A1-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=1942d3ee-ad4d-4288-b402-712241cdb4d6"
     },
@@ -744,7 +744,7 @@
         "preparation": "얼음과 함께 흔든 후 샴페인을 제외한 재료를 샴페인 플루트에 스트레인 하고, 샴페인으로 채운다. 가볍게 저어준다.",
         "abv": 12,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%B3%E1%84%85%E1%85%A6%E1%86%AB%E1%84%8E%E1%85%B5%2075-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=dac32a8c-9aa7-42fc-8d2a-4bc20083b05d"
     },
@@ -777,7 +777,7 @@
         "preparation": "얼음과 함께 흔든 후 차가운 칵테일 글라스에 스트레인 한다.",
         "abv": 19,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A8%E1%86%AF%E1%84%85%E1%85%A9%20%E1%84%87%E1%85%A5%E1%84%83%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?alt=media&token=0eba0420-6517-4141-95d2-907465706d94"
     },
@@ -806,7 +806,7 @@
         "preparation": "모든 재료를 얼음과 함께 블렌더에 넣고 섞은 후, 큰 고블렛이나 허리케인 글라스에 담고 빨대를 꽂아 서빙한다.",
         "abv": 13,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%B5%E1%84%82%E1%85%A1%20%E1%84%8F%E1%85%A9%E1%86%AF%E1%84%85%E1%85%A1%E1%84%83%E1%85%A1-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=42ffccd3-5d8b-4ae0-aca9-6faeab630bc5"
     },
@@ -835,7 +835,7 @@
         "preparation": "얼음과 함께 흔든 후 차가운 칵테일 글라스에 스트레인 한다.",
         "abv": 22,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A6%E1%84%87%E1%85%B5%E1%84%8B%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%89%E1%85%A7%E1%86%AB-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=ba8dadc8-2fad-42e0-90ea-e58cd69edf32"
     },
@@ -858,7 +858,7 @@
         "preparation": "차가운 글라스에 복숭아 퓌레를 붓고 스파클링 와인을 추가한 후 부드럽게 저어준다. 변형: 푸치니 (신선한 만다린 주스), 로시니 (신선한 딸기 퓌레), 틴토레토 (신선한 석류 주스)",
         "abv": 11,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%A6%E1%86%AF%E1%84%85%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=7dec7224-68cc-4244-a39d-1b16cdb07749"
     },
@@ -889,7 +889,7 @@
         "preparation": "얼음과 함께 흔든 후 차가운 칵테일 글라스에 스트레인 한다.",
         "abv": 18,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -918,7 +918,7 @@
         "preparation": "하이볼 잔에 테킬라와 오렌지 주스를 얼음과 함께 붓고, 그레나딘을 추가해 선라이즈 효과를 만듭니다. 저으면 안 됩니다.",
         "abv": 15.2,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%90%E1%85%A6%E1%84%8F%E1%85%B5%E1%86%AF%E1%84%85%E1%85%A1%20%E1%84%89%E1%85%A5%E1%86%AB%E1%84%85%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%8C%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=d1f4962e-47c4-4f78-b587-28d984ba171b"
     },
@@ -948,7 +948,7 @@
         "preparation": "Shake and strain into a cocktail glass.",
         "abv": 16.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -972,7 +972,7 @@
         "preparation": "Build into old-fashioned glass filled with ice. Stir gently.",
         "abv": 25.2,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%83%E1%85%A5%E1%84%90%E1%85%B5%20%E1%84%86%E1%85%A1%E1%84%85%E1%85%B3%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.jpg?alt=media&token=755cd5d6-6ae4-42b9-9a96-bdb74959dd49"
     },
@@ -1004,7 +1004,7 @@
         "preparation": "Layer ingredients one at a time starting with Kahlúa, followed by Baileys Irish Cream and top with Grand Marnier. Flame the Grand Marnier, serve while the flame is still on, accompanied with a straw on side plate.",
         "abv": 20.4,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -1027,7 +1027,7 @@
         "preparation": "Stir in mixing glass with ice cubes. Strain into a cocktail glass.",
         "abv": 27.4,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%B3%E1%84%90%E1%85%B5%E1%86%BC%E1%84%8B%E1%85%A5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=f52ca4fa-b438-43ee-9eef-83eb62d022c1"
     },
@@ -1061,7 +1061,7 @@
         "preparation": "Shake with ice cubes. Strain into chilled cocktail glass.",
         "abv": 14.8,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -1083,7 +1083,7 @@
         "preparation": "Build into old-fashioned glass filled with ice cubes. Stir gently.",
         "abv": 24.1,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -1109,7 +1109,7 @@
         "preparation": "Build into an old-fashioned glass filled with ice. Top with a splash of soda water.",
         "abv": 11.2,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%B3%E1%84%91%E1%85%B3%E1%84%85%E1%85%B5%E1%84%8E%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=b43799da-5099-4b37-a668-457a49794aac"
     },
@@ -1144,7 +1144,7 @@
         "preparation": "Build over crushed ice, in a rock glass. Stir, then pour the blackberry liqueur over the top of the drink in a circular fashion.",
         "abv": 16.3,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%B3%E1%84%85%E1%85%A2%E1%86%B7%E1%84%87%E1%85%B3%E1%86%AF-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=78c2d911-a1b4-4c39-bc1d-b0937293ef34"
     },
@@ -1172,7 +1172,7 @@
         "preparation": "쉐이크한 후, 차가운 칵테일 글래스에 따라낸 뒤, 신선한 육두구를 갈아서 뿌립니다.",
         "abv": 17.0,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A1%E1%86%AF%E1%84%85%E1%85%A6%E1%86%A8%E1%84%89%E1%85%A1%E1%86%AB%E1%84%83%E1%85%A5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=9f0302e3-419f-494e-bdfe-f04b5847b09f"
     },
@@ -1202,7 +1202,7 @@
         "preparation": "쉐이크한 후, 설탕으로 림을 만든 차가운 칵테일 글래스에 따라냅니다.",
         "abv": 19.2,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%85%E1%85%A6%E1%84%86%E1%85%A9%E1%86%AB%20%E1%84%83%E1%85%B3%E1%84%85%E1%85%A9%E1%86%B8%20%E1%84%86%E1%85%A1%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=dcd853e5-4438-43bc-92ae-7f28293f0a80"
     },
@@ -1230,7 +1230,7 @@
         "preparation": "믹싱 글래스에 얼음을 넣고 저은 후, 차가운 칵테일 글래스에 따라냅니다. 레몬 껍질에서 기름을 짜서 음료에 뿌립니다.",
         "abv": 21.3,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%B3%E1%84%85%E1%85%A6%E1%86%AB%E1%84%8E%E1%85%B5%20%E1%84%86%E1%85%A1%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=a7274d0d-fde2-4a18-b51c-461f18b57b11"
     },
@@ -1253,7 +1253,7 @@
         "preparation": "얼음이 채워진 올드 패션드 글래스에 재료를 넣고 부드럽게 저어줍니다. 화이트 러시안을 만들려면 신선한 크림을 위에 띄워 부드럽게 저어주세요.",
         "abv": 23.8,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image" : "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A2%E1%86%A8%20%E1%84%85%E1%85%A5%E1%84%89%E1%85%B5%E1%84%8B%E1%85%A1%E1%86%AB-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=2a81aef6-2019-4d31-a818-ff28d214378e"
     },
@@ -1294,7 +1294,7 @@
         "preparation": "부드럽게 저은 후, 하이볼 글래스에 모든 재료를 붓습니다.",
         "abv": 14.6,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A5%E1%84%83%E1%85%B5%20%E1%84%86%E1%85%A6%E1%84%85%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=529188ae-a812-4396-a3dc-7fb82c5337af"
     },
@@ -1335,7 +1335,7 @@
         "preparation": "쉐이크한 후, 하이볼 글래스에 따라내고, 빨대를 함께 제공합니다.",
         "abv": 21.8,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%90%E1%85%A1%E1%84%8B%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=adae902a-4c64-42aa-9b6d-8f6549396fa9"
     },
@@ -1369,7 +1369,7 @@
         ],
         "abv": 16.4,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%A1%E1%84%85%E1%85%A1%E1%84%8F%E1%85%AE%E1%84%83%E1%85%A1-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?alt=media&token=5321756b-af57-4579-b9f4-eaa736eae6e0"
     },
@@ -1403,7 +1403,7 @@
         "preparation": "모든 재료를 얼음이 담긴 하이볼 글래스에 넣고 섞어줍니다.",
         "abv": 17.4,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%A6%E1%86%A8%E1%84%89%E1%85%B3%20%E1%84%8B%E1%85%A9%E1%86%AB%20%E1%84%83%E1%85%A5%20%E1%84%87%E1%85%B5%E1%84%8E%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=a9c0e4ae-1587-4805-9ba4-002b6aca4ec1"
     },
@@ -1432,7 +1432,7 @@
         "preparation": "쉐이크한 후, 차가운 칵테일 글래스에 따라냅니다.",
         "abv": 23.2,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A9%E1%86%BC%E1%84%8F%E1%85%B5%20%E1%84%80%E1%85%B3%E1%86%AF%E1%84%85%E1%85%A2%E1%86%AB%E1%84%83%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=76aa91ef-2c7d-4610-a297-60db714ec8da"
     },
@@ -1457,7 +1457,7 @@
         "preparation": "믹싱 글래스에 얼음과 함께 저어준 후, 차가운 칵테일 글래스에 따릅니다.",
         "abv": 22.0,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%83%E1%85%A5%E1%84%87%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=a0e601f5-cbf3-4fa7-9079-c64ca8db4589"
     },
@@ -1485,7 +1485,7 @@
         "preparation": "얼음과 함께 쉐이크한 후, 차가운 칵테일 글래스에 따릅니다.",
         "abv": 28.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": ""
     },
@@ -1517,7 +1517,7 @@
         "preparation": "아이리시 위스키를 버너로 데운 후, 뜨거운 커피와 설탕을 넣고 크림을 띄워줍니다.",
         "abv": 20.0,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image" : "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%85%E1%85%B5%E1%84%89%E1%85%B5%20%E1%84%8F%E1%85%A5%E1%84%91%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=e70416b4-d6d1-4602-a820-4ba5d0dc2650"
     },
@@ -1547,7 +1547,7 @@
         "preparation": "차가운 올드 패션드 글래스에 압생트를 헹군 후, 얼음을 넣고 옆에 둡니다. 나머지 재료를 얼음과 함께 섞은 후, 준비된 글래스에 따릅니다. 참고: 원래 레시피는 미국 내전 이후 변화되어, 라이 위스키가 꼬냑을 대체했습니다.",
         "abv": 38.3,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%A1%E1%84%8C%E1%85%A6%E1%84%85%E1%85%A1%E1%86%A8-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=50dd8cb3-19c7-43bd-a1a5-febc556c25bd"
     },
@@ -1575,7 +1575,7 @@
         "preparation": "얼음이 담긴 올드 패션드 글래스에 재료를 넣고, 탄산수를 추가합니다.",
         "abv": 18.7,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8B%E1%85%A1%E1%84%86%E1%85%A6%E1%84%85%E1%85%B5%E1%84%8F%E1%85%A1%E1%84%82%E1%85%A9-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=19f9cbe1-e321-467e-b57d-d8bc52747d5f"
     },
@@ -1629,7 +1629,7 @@
         "preparation": "얼음과 함께 쉐이크한 후, 하이볼 글래스에 따릅니다.",
         "abv": 17.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%B5%E1%86%BC%E1%84%80%E1%85%A1%E1%84%91%E1%85%A9%E1%84%85%E1%85%B3%20%E1%84%89%E1%85%B3%E1%86%AF%E1%84%85%E1%85%B5%E1%86%BC-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=fc409918-3f48-48c8-ba75-15889e05c1b1"
     },
@@ -1651,7 +1651,7 @@
         "preparation": "얼음이 담긴 올드 패션드 글래스에 재료를 넣고 부드럽게 저어줍니다.",
         "abv": 28.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%B3%E1%84%85%E1%85%A6%E1%86%AB%E1%84%8E%E1%85%B5%20%E1%84%8F%E1%85%A5%E1%84%82%E1%85%A6%E1%86%A8%E1%84%89%E1%85%A7%E1%86%AB-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=e564b098-51ec-433d-bc90-e623f97502ea"
     },
@@ -1683,7 +1683,7 @@
         "preparation": "보드카와 진저 비어를 섞고, 라임 주스를 추가합니다.",
         "abv": 18.3,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A9%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%20%E1%84%86%E1%85%B2%E1%86%AF-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=eede26eb-e9bf-4f3a-9375-7dffb922faae"
     },
@@ -1718,7 +1718,7 @@
         "preparation": "하이볼 글래스에 얼음을 채운 후 재료를 넣고 부드럽게 저어줍니다. 앙고스투라 비터스를 약간 추가하세요. (참고: 톰 콜린스를 만들 때는 올드 톰 진을 사용하세요)",
         "abv": 10,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8C%E1%85%A9%E1%86%AB%20%E1%84%8F%E1%85%A9%E1%86%AF%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=37d15007-aaec-4f89-a5ce-da52a8a54fe2"
     },
@@ -1742,7 +1742,7 @@
         "preparation": "크렘 드 카시스를 글래스에 붓고 화이트 와인을 채워 넣습니다. 키르 로얄을 만들 때는 화이트 와인 대신 샴페인을 사용하세요.",
         "abv": 12,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%B5%E1%84%85%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=60216af6-36ac-4623-a53e-225485f916d6"
     },
@@ -1771,7 +1771,7 @@
         "preparation": "하이볼 글래스에 민트, 설탕, 물을 부드럽게 머들링한 후, 얼음을 넣고 버번을 추가하고 잘 저어주세요.",
         "abv": 14,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%B5%E1%86%AB%E1%84%90%E1%85%B3%20%E1%84%8C%E1%85%B2%E1%86%AF%E1%84%85%E1%85%A6%E1%86%B8-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=06de54db-3214-40fe-b259-8b6e77121368"
     },
@@ -1797,7 +1797,7 @@
         "preparation": "셰이크한 후 차가운 마티니 글래스에 스트레인합니다.",
         "abv": 18,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%90%E1%85%A9%E1%84%86%E1%85%B5%E1%84%8B%E1%85%B4%20%E1%84%86%E1%85%A1%E1%84%85%E1%85%B3%E1%84%80%E1%85%A1%E1%84%85%E1%85%B5%E1%84%90%E1%85%A1-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=523622f9-18e4-4898-b8ad-37b6ca2c009d"
     },
@@ -1825,7 +1825,7 @@
         "preparation": "얼음과 함께 셰이크한 후 차가운 마티니 글래스에 스트레인합니다.",
         "abv": 13,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%91%E1%85%A1%E1%84%85%E1%85%A1%E1%84%83%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%89%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=e05f1951-2043-4954-9c08-965cfc4a950b"
     },
@@ -1855,7 +1855,7 @@
         "preparation": "믹싱 글래스에 얼음을 넣고 잘 저은 후 차가운 마티니 글래스에 스트레인합니다.",
         "abv": 20,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%83%E1%85%A5%E1%84%90%E1%85%B5%20%E1%84%86%E1%85%A1%E1%84%85%E1%85%B3%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.jpg?alt=media&token=755cd5d6-6ae4-42b9-9a96-bdb74959dd49"
     },
@@ -1885,7 +1885,7 @@
         "preparation": "설탕 큐브 위에 앙고스투라 비터스를 몇 방울 떨어뜨리고, 그 위에 꼬냑을 붓고 샴페인을 부어 넣습니다.",
         "abv": 15,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%89%E1%85%A3%E1%86%B7%E1%84%91%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AB%20%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=7b3af292-6449-4dd0-9178-4cafee9f2b76"
     },
@@ -1920,7 +1920,7 @@
         "preparation": "셰이크 후 차가운 대형 칵테일 글래스에 스트레인합니다.",
         "abv": 14,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%86%E1%85%A6%E1%84%85%E1%85%B5%20%E1%84%91%E1%85%B5%E1%86%A8%E1%84%91%E1%85%A9%E1%84%83%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=c78584e8-7a9e-4f95-95e6-3a9ce68dc17a"
     },
@@ -1954,7 +1954,7 @@
         "preparation": "얼음과 함께 셰이크 후 더블 칵테일 글래스에 스트레인합니다.",
         "abv": 16,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%92%E1%85%A6%E1%84%86%E1%85%B5%E1%86%BC%E1%84%8B%E1%85%B0%E1%84%8B%E1%85%B5%20%E1%84%89%E1%85%B3%E1%84%91%E1%85%A6%E1%84%89%E1%85%A7%E1%86%AF-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=1e62e207-9a20-4a9b-967a-0e3f401260dd"
     },
@@ -1979,7 +1979,7 @@
         "preparation": "하이볼 글래스에 얼음을 넣고 다크럼을 먼저 넣고 그 위에 진저 비어를 붓습니다.",
         "abv": 12,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -2029,7 +2029,7 @@
         "preparation": "모든 재료(탄산수 제외)를 믹싱 글래스에 넣고 2분 동안 드라이 셰이크 후 얼음을 넣고 1분 동안 하드 셰이크합니다. 얼음 없이 하이볼 글래스에 스트레인한 후 탄산수를 부어줍니다.",
         "abv": 13,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%83%E1%85%A5%E1%84%90%E1%85%B5%20%E1%84%86%E1%85%A1%E1%84%85%E1%85%B3%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.jpg?alt=media&token=755cd5d6-6ae4-42b9-9a96-bdb74959dd49"
     },
@@ -2065,7 +2065,7 @@
         "preparation": "재료를 흔들고 하이볼 글래스에 따르세요. 스파클링 와인으로 채우세요.",
         "abv": 10.5,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%85%E1%85%A5%E1%84%89%E1%85%B5%E1%84%8B%E1%85%A1%E1%86%AB%20%E1%84%89%E1%85%B3%E1%84%91%E1%85%B3%E1%84%85%E1%85%B5%E1%86%BC%20%E1%84%91%E1%85%B5%E1%84%8C%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=403d3f16-52f5-4e08-b3d5-004a5f25c118"
     },
@@ -2089,7 +2089,7 @@
         "preparation": "올드 패션드 글래스에 얼음을 채우고 재료를 붓고 부드럽게 저어주세요.",
         "abv": 24,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0
     },
     {
@@ -2124,7 +2124,7 @@
         "preparation": "얼음을 넣고 흔든 후 큰 칵테일 글래스에 걸러서 따르세요.",
         "abv": 20,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%A9%E1%84%89%E1%85%B3%E1%84%86%E1%85%A9%E1%84%91%E1%85%A9%E1%86%AF%E1%84%85%E1%85%B5%E1%84%90%E1%85%A1%E1%86%AB-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=b7e78ee0-cac9-4f8e-a496-8a2831997eaa"
     },
@@ -2148,7 +2148,7 @@
         "preparation": "믹싱 글래스에 얼음을 넣고 저은 후 차가운 마티니 글래스에 걸러서 따르세요. 레몬 껍질에서 기름을 짜서 드링크 위에 올리거나 올리브로 장식하세요.",
         "abv": 25,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%83%E1%85%A5%E1%84%90%E1%85%B5%20%E1%84%86%E1%85%A1%E1%84%85%E1%85%B3%E1%84%90%E1%85%B5%E1%84%82%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.jpg?alt=media&token=755cd5d6-6ae4-42b9-9a96-bdb74959dd49"
     },
@@ -2181,7 +2181,7 @@
         "preparation": "얼음을 넣고 흔든 후 차가운 칵테일 글래스에 걸러서 따르세요.",
         "abv": 24,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%B5%E1%84%90%E1%85%B3%E1%84%8B%E1%85%B1%E1%86%AB%20%E1%84%83%E1%85%A5%20%E1%84%89%E1%85%B5%E1%84%90%E1%85%B3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=1efa9628-acf2-45be-9e5f-c8fdd66e9ecb"
     },
@@ -2217,7 +2217,7 @@
         "preparation": "얼음을 넣고 흔든 후 차가운 칵테일 글래스에 걸러서 따르세요.",
         "abv": 21,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%A1%E1%84%8C%E1%85%B5%E1%84%82%E1%85%A9-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=576d3787-cd02-4dfc-9dc0-abef291a73bc"
     },
@@ -2241,7 +2241,7 @@
         "preparation": "올드 패션드 글래스에 라임과 설탕을 넣고 머들링한 후, 얼음을 채운 후 카샤카를 부으세요. (참고: 카이피로스카 - 보드카로 대체 가능합니다.)",
         "abv": 25,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%91%E1%85%B5%E1%84%85%E1%85%A1%E1%84%82%E1%85%A3-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=45956fd1-0983-4dd0-8547-9f5cda4db2dc"
     },
@@ -2290,7 +2290,7 @@
         "preparation": "얼음을 넣고 흔든 후 하이볼 글래스에 걸러서 따르세요.",
         "abv": 22,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%87%E1%85%A2%E1%86%B7%E1%84%91%E1%85%B5%E1%84%85%E1%85%A9-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=929d62d8-c95a-47fa-9122-e1e2840a5018"
     },
@@ -2318,7 +2318,7 @@
         "preparation": "얼음을 넣고 흔든 후 차가운 칵테일 글래스에 걸러서 따르세요.",
         "abv": 23,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%8F%E1%85%A1%E1%84%86%E1%85%B5%E1%84%8F%E1%85%A1%E1%84%8C%E1%85%A6-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=21e0e74a-1c45-42a1-aa01-c8a46a5ae268"
     },
@@ -2346,7 +2346,7 @@
         "preparation": "얼음을 넣고 흔든 후 큰 칵테일 글래스에 걸러서 따르세요.",
         "abv": 21,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%92%E1%85%AA%E1%84%8B%E1%85%B5%E1%84%90%E1%85%B3%20%E1%84%85%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%83%E1%85%B5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=2104f6bb-6bf8-4cb1-be88-c4b0ddc81e9f"
     },
@@ -2375,7 +2375,7 @@
         "preparation": "보드카와 오렌지 주스를 하이볼 글래스에 얼음을 채우고 붓고 부드럽게 저은 후 갈리아노를 떠서 올리세요.",
         "abv": 18,
         "like": 0,
-        "report": 0,
+        "dislike": 0,
         "author": 0,
         "image": "https://firebasestorage.googleapis.com/v0/b/finalproject-public.firebasestorage.app/o/cocktail%2F%E1%84%92%E1%85%A1%E1%84%87%E1%85%B5%20%E1%84%8B%E1%85%AF%E1%86%AF%E1%84%87%E1%85%A2%E1%86%BC%E1%84%8B%E1%85%A5-%E1%84%8F%E1%85%A1%E1%86%A8%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.webp?alt=media&token=4cc84788-c17b-49b8-8354-43206320c40e"
     }

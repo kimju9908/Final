@@ -10,7 +10,7 @@
       "viewsCount": { "type": "integer" },
       "likesCount": { "type": "integer" },
       "likedBy": { "type": "keyword" },
-      "reportCount": { "type": "integer" },
+      "dislikeCount": { "type": "integer" },
       "comments": {
         "type": "nested",
         "properties": {

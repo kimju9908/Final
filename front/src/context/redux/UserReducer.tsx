@@ -3,15 +3,25 @@ import { UserState } from "../types";
 import { logout } from "./CommonAction";
 import { MyInfo } from "../../api/dto/ReduxDto";
 
+const normalizeRecipeSet = (value: unknown): Set<string> => {
+  if (value instanceof Set) {
+    return new Set(value);
+  }
+  if (Array.isArray(value)) {
+    return new Set(value.map(String));
+  }
+  return new Set();
+};
+
 const initialState: UserState = {
   id: null,
   email: "",
   nickname: "",
-  guest: false,
-  admin: true,
+  guest: true,
+  admin: false,
   premium: false, // 추가된 프리미엄 상태
   likedRecipes: new Set(),
-  reportedRecipes: new Set(),
+  dislikedRecipes: new Set(),
 };
 
 const UserReducer = createSlice({
@@ -28,10 +38,10 @@ const UserReducer = createSlice({
 
       // 기존 유저의 좋아요 및 신고 리스트 업데이트 (있다면)
       if (action.payload.likedRecipes) {
-        state.likedRecipes = new Set(action.payload.likedRecipes);
+        state.likedRecipes = normalizeRecipeSet(action.payload.likedRecipes);
       }
-      if (action.payload.reportedRecipes) {
-        state.reportedRecipes = new Set(action.payload.reportedRecipes);
+      if (action.payload.dislikedRecipes) {
+        state.dislikedRecipes = normalizeRecipeSet(action.payload.dislikedRecipes);
       }
     },
     setGuest: (state) => {
@@ -40,23 +50,25 @@ const UserReducer = createSlice({
       state.email = "";
       state.nickname = "";
       state.admin = false;
-      state.likedRecipes.clear();
-      state.reportedRecipes.clear();
+      state.likedRecipes = new Set();
+      state.dislikedRecipes = new Set();
     },
-    toggleLikeRecipe: (state, action: PayloadAction<string>) => {
-      const recipeId = action.payload;
-      if (state.likedRecipes.has(recipeId)) {
-        state.likedRecipes.delete(recipeId);
-      } else {
-        state.likedRecipes.add(recipeId);
+    setRecipeReaction: (
+      state,
+      action: PayloadAction<{ recipeKey: string; reaction: "LIKE" | "DISLIKE" | "NONE" }>
+    ) => {
+      const { recipeKey, reaction } = action.payload;
+      state.likedRecipes = normalizeRecipeSet(state.likedRecipes);
+      state.dislikedRecipes = normalizeRecipeSet(state.dislikedRecipes);
+
+      state.likedRecipes.delete(recipeKey);
+      state.dislikedRecipes.delete(recipeKey);
+
+      if (reaction === "LIKE") {
+        state.likedRecipes.add(recipeKey);
       }
-    },
-    toggleReportRecipe: (state, action: PayloadAction<string>) => {
-      const recipeId = action.payload;
-      if (state.reportedRecipes.has(recipeId)) {
-        state.reportedRecipes.delete(recipeId);
-      } else {
-        state.reportedRecipes.add(recipeId);
+      if (reaction === "DISLIKE") {
+        state.dislikedRecipes.add(recipeKey);
       }
     },
   },
@@ -68,12 +80,12 @@ const UserReducer = createSlice({
       state.nickname = "";
       state.admin = false;
       state.premium = false;
-      state.likedRecipes.clear();
-      state.reportedRecipes.clear();
+      state.likedRecipes = new Set();
+      state.dislikedRecipes = new Set();
     });
   },
 });
 
-export const { setUserInfo, setGuest, toggleLikeRecipe, toggleReportRecipe } =
+export const { setUserInfo, setGuest, setRecipeReaction } =
   UserReducer.actions;
 export default UserReducer.reducer;

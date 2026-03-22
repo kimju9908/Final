@@ -13,6 +13,7 @@ import RecipeApi from "../../api/RecipeApi"; // RecipeApi를 임포트
 import { CommentDto, CommentSectionProps } from "../../api/dto/RecipeDto";
 import { useSelector } from "react-redux";
 import { RootState } from "../../context/Store";
+import { commentStyles } from "./CommentStyles";
 
 const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
   const [comments, setComments] = useState<CommentDto[]>([]);
@@ -101,8 +102,8 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
   };
 
   return (
-    <Box sx={{ marginTop: 3 }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
+    <Box sx={commentStyles.container}>
+      <Typography variant="h5" gutterBottom sx={commentStyles.title}>
         댓글
       </Typography>
       <List>
@@ -118,8 +119,8 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
           />
         ))}
       </List>
-      <Box sx={{ marginTop: 2 }}>
-        <Divider sx={{ marginBottom: 2 }} />
+      <Box sx={commentStyles.commentFormBox}>
+        <Divider sx={commentStyles.divider} />
         <TextField
           fullWidth
           multiline
@@ -127,24 +128,15 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
           value={commentContent}
           onChange={(e) => setCommentContent(e.target.value)}
           placeholder="댓글을 작성하세요"
-          sx={{ marginBottom: 2 }}
+          sx={commentStyles.textField}
         />
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box sx={commentStyles.buttonContainer}>
           <Button
             variant="contained"
             color="primary"
             onClick={handleCommentSubmit}
             disabled={commentContent.trim() === ""}
-            sx={{
-              marginLeft: "auto",
-              backgroundColor: "white",
-              color: "#6a4e23",
-              boxShadow: "none",
-              "&:hover": {
-                backgroundColor: "#f5f5f5",
-                boxShadow: "none", // 호버 시에도 그림자 제거
-              },
-            }}
+            sx={commentStyles.submitButton}
           >
             댓글 작성
           </Button>
@@ -152,7 +144,7 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
       </Box>
 
       {/* 페이지 네비게이션 */}
-      <Box sx={{ marginTop: 3, display: "flex", justifyContent: "center" }}>
+      <Box sx={commentStyles.paginationBox}>
         <Pagination
           count={totalPages}
           page={page}
@@ -182,13 +174,13 @@ const CommentItem: React.FC<{
   const [replyContent, setReplyContent] = useState<string>("");
 
   return (
-    <Box sx={{ marginBottom: 2, paddingLeft: 2 }}>
-      <Divider sx={{ marginBottom: 2, borderColor: "#6a4e23" }} />
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+    <Box sx={commentStyles.commentItem}>
+      <Divider sx={commentStyles.commentDivider} />
+      <Box sx={commentStyles.commentContent}>
+        <Typography variant="body2" sx={commentStyles.nickname}>
           {comment.nickName}:
         </Typography>
-        <Typography variant="body1" sx={{ marginLeft: 1 }}>
+        <Typography variant="body1" sx={commentStyles.content}>
           {comment.content}
         </Typography>
 
@@ -197,12 +189,7 @@ const CommentItem: React.FC<{
           <Button
             size="small"
             onClick={() => onDeleteComment(comment.commentId)}
-            sx={{
-              marginLeft: 2,
-              backgroundColor: "white",
-              color: "#6a4e23",
-              "&:hover": { backgroundColor: "#f5f5f5" },
-            }}
+            sx={commentStyles.deleteButton}
           >
             삭제
           </Button>
@@ -211,26 +198,21 @@ const CommentItem: React.FC<{
         <Button
           size="small"
           onClick={() => toggleReplies(comment.commentId)}
-          sx={{
-            marginLeft: "auto",
-            backgroundColor: "#ffffff",
-            color: "#6a4e23",
-            "&:hover": { backgroundColor: "#f5f5f5" },
-          }}
+          sx={commentStyles.replyButton}
         >
           {expanded ? "답글 숨기기" : "답글"}
         </Button>
       </Box>
 
       {expanded && comment.replies.length > 0 && (
-        <Box sx={{ paddingLeft: 4 }}>
-          <List sx={{ paddingLeft: 4 }}>
+        <Box sx={commentStyles.repliesContainer}>
+          <List sx={commentStyles.replyList}>
             {comment.replies.map((reply) => (
               <Box
                 key={reply.commentId}
-                sx={{ marginBottom: 1, paddingLeft: 4 }}
+                sx={commentStyles.replyItem}
               >
-                <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+                <Typography variant="body2" sx={commentStyles.replyText}>
                   - {reply.nickName}: {reply.content}
                 </Typography>
 
@@ -239,12 +221,7 @@ const CommentItem: React.FC<{
                   <Button
                     size="small"
                     onClick={() => onDeleteComment(reply.commentId)}
-                    sx={{
-                      marginLeft: 2,
-                      backgroundColor: "white",
-                      color: "#6a4e23",
-                      "&:hover": { backgroundColor: "#f5f5f5" },
-                    }}
+                    sx={commentStyles.replyDeleteButton}
                   >
                     삭제
                   </Button>
@@ -256,7 +233,7 @@ const CommentItem: React.FC<{
       )}
 
       {expanded && (
-        <Box sx={{ marginTop: 2, paddingLeft: 4 }}>
+        <Box sx={commentStyles.replyFormBox}>
           <TextField
             fullWidth
             multiline
@@ -265,30 +242,17 @@ const CommentItem: React.FC<{
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="대댓글을 작성하세요"
             variant="outlined"
-            sx={{
-              marginBottom: 2,
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                  borderColor: "#6a4e23",
-                },
-                "&:hover fieldset": {
-                  borderColor: "#6a4e23",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#6a4e23",
-                },
-              },
-            }}
+            sx={commentStyles.replyTextField}
           />
 
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Box sx={commentStyles.buttonContainer}>
             <Button
               onClick={() => {
                 onReplySubmit(comment.commentId, replyContent);
                 setReplyContent("");
               }}
               disabled={replyContent.trim() === ""}
-              sx={{ color: "#6a4e23" }}
+              sx={commentStyles.replySubmitButton}
             >
               대댓글 작성
             </Button>

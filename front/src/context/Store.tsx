@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import ModalReducer from "./redux/ModalReducer";
 import { persistStore, persistReducer } from "redux-persist";
+import { createTransform } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // 로컬 스토리지 사용
 import TokenReducer from "./redux/TokenReducer"; // 토큰 리듀서 가져오기
 import UserReducer from "./redux/UserReducer"; // 유저 정보 리듀서 가져오기
@@ -14,12 +15,44 @@ const persistConfig = {
 
 const persistedTokenReducer = persistReducer(persistConfig, TokenReducer);
 
+const userTransform = createTransform(
+  (inboundState: any) => ({
+    ...inboundState,
+    likedRecipes: Array.from(inboundState.likedRecipes ?? []),
+    dislikedRecipes: Array.from(inboundState.dislikedRecipes ?? inboundState.reportedRecipes ?? []),
+  }),
+  (outboundState: any) => ({
+    ...outboundState,
+    likedRecipes: new Set(outboundState.likedRecipes ?? []),
+    dislikedRecipes: new Set(outboundState.dislikedRecipes ?? outboundState.reportedRecipes ?? []),
+  }),
+  { whitelist: ["user"] }
+);
+
+const userPersistConfig = {
+  key: "user",
+  storage,
+  whitelist: [
+    "id",
+    "email",
+    "nickname",
+    "guest",
+    "admin",
+    "premium",
+    "likedRecipes",
+    "dislikedRecipes",
+  ],
+  transforms: [userTransform],
+};
+
+const persistedUserReducer = persistReducer(userPersistConfig, UserReducer);
+
 // 스토어 설정
 export const store = configureStore({
   reducer: {
     modal: ModalReducer, // 기존 모달 리듀서
     token: persistedTokenReducer, // 퍼시스턴트된 토큰 리듀서
-    user: UserReducer, // 유저 리듀서
+    user: persistedUserReducer, // 유저 리듀서
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

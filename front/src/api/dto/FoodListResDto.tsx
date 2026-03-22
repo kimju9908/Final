@@ -5,5 +5,5 @@ export interface FoodListResDto {
   image?: string;
   category?: string;
   like?: number;
-  report?: number;
+  dislike?: number;
 }

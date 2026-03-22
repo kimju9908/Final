@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { handleLogout } from "../../context/redux/CommonAction";
 import CloseIcon from '@mui/icons-material/Close';
 import DropdownComponent from "../../component/DropdownComponent";
+import { profileButtonStyles } from "./style/ProfileButtonStyles";
 
 const ProfileButton = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,7 +39,7 @@ const ProfileButton = () => {
       <Tooltip title={profile ? "닫기" : (nickname || "게스트")} >
         <IconButton
           onClick={() => setProfile(!profile)}
-          sx={{ background: "#F5F5DC", color: "#6A4E23", zIndex: profile ? "30" : "5" }}>
+          sx={profileButtonStyles.iconButton(profile)}>
           {profile ? <CloseIcon/> : <PersonIcon/>}
         </IconButton>
       </Tooltip>
