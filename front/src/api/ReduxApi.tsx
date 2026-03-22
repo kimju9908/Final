@@ -8,7 +8,7 @@ const ReduxApi = {
     return await axiosInstance.get<MyInfo>(Commons.BASE_URL + "/redux/myinfo");
   },
   refresh: async (refreshToken: string) => {
-    return await axios.post<AccessTokenDto>(`${Commons.BASE_URL}/auth/refresh`, { refreshToken
+    return await axios.post<AccessTokenDto>(`${Commons.BASE_URL}/auth/tokens/refresh`, { refreshToken
     });
   },
 };

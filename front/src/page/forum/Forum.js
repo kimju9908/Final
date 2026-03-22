@@ -33,9 +33,17 @@ const Forum = () => {
     const fetchCategories = async () => {
       try {
         const data = await ForumApi.fetchCategories();
-        setCategories(data);
+        const normalizedCategories = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.content)
+          ? data.content
+          : Array.isArray(data?.categories)
+          ? data.categories
+          : [];
+        setCategories(normalizedCategories);
       } catch (error) {
         console.error("카테고리 목록 가져오기 실패:", error);
+        setCategories([]);
       } finally {
         setLoading(false);
       }

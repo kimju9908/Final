@@ -5,7 +5,8 @@ import RecipeApi from "../../api/RecipeApi";
 import placeholder from "./style/placeholder.jpg";
 import placeholder2 from "./style/placeholder2.png";
 import { CocktailListResDto } from "../../api/dto/CotailListResDto";
-import { CocktailResDto } from "../../api/dto/RecipeDto";
+import { CocktailResDto, RecommendedCocktailDto } from "../../api/dto/RecipeDto";
+import { AxiosError } from "axios";
 
 // 기존 CocktailListResDto에 image 필드가 없을 경우, CocktailResDto의 image 필드를 사용하도록 타입 병합
 type CocktailForList = CocktailListResDto & { image: string };
@@ -14,6 +15,8 @@ const CocktailListPage: React.FC = () => {
   const [cocktails, setCocktails] = useState<CocktailForList[]>([]);
   const [query, setQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [recommendedCocktails, setRecommendedCocktails] = useState<RecommendedCocktailDto[]>([]);
+  const [recommendationMessage, setRecommendationMessage] = useState<string>("AI 추천 칵테일을 불러오는 중입니다.");
 
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -130,19 +133,32 @@ const CocktailListPage: React.FC = () => {
     };
   }, [resetObserver, loadCocktails, selectedCategory]);
 
+  useEffect(() => {
+    const loadRecommendations = async () => {
+      try {
+        const response = await RecipeApi.fetchRecommendedCocktailsByLikes();
+        setRecommendedCocktails(response);
+        setRecommendationMessage(
+          response.length > 0
+            ? ""
+            : "좋아요한 칵테일이 쌓이면 취향 기반 AI 추천을 보여드릴게요."
+        );
+      } catch (error) {
+        if (error instanceof AxiosError && error.response?.status === 401) {
+          setRecommendationMessage("로그인 후 좋아요를 누르면 AI 추천 칵테일을 받아볼 수 있어요.");
+          return;
+        }
+        console.error("추천 칵테일 조회 중 에러:", error);
+        setRecommendationMessage("지금은 추천 칵테일을 불러오지 못했어요.");
+      }
+    };
+
+    loadRecommendations();
+  }, []);
+
   const handleSelectCocktail = (id: string) => {
     navigate(`/cocktailrecipe/detail/${id}/cocktail`);
   };
-
-  const recommendedRecipes = [
-    { id: "rec_1", name: "마가리타", image: placeholder2 },
-    { id: "rec_2", name: "다이키리", image: placeholder2 },
-    {
-      id: "rec_3",
-      name: "모히또",
-      image: "https://media.tenor.com/imFIc3R5UY8AAAAM/pepe-pepe-wink.gif",
-    },
-  ];
 
   const categories = [
     "전체",
@@ -190,27 +206,43 @@ const CocktailListPage: React.FC = () => {
 
       <section className="mb-16">
         <h2 className="text-xl md:text-2xl font-bold mb-4 text-kakiBrown dark:text-softBeige">
-          Recipes For You
+          Cocktails For You
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recommendedRecipes.map((item) => (
-            <div
-              key={item.id}
-              className="border rounded overflow-hidden shadow border-kakiBrown dark:border-darkKaki"
-            >
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-40 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-kakiBrown dark:text-softBeige">
-                  {item.name}
-                </h3>
+        {recommendedCocktails.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recommendedCocktails.map((item) => (
+              <div
+                key={item.id}
+                className="border rounded overflow-hidden shadow border-kakiBrown dark:border-darkKaki cursor-pointer transition-transform hover:scale-105"
+                onClick={() => handleSelectCocktail(item.id)}
+              >
+                <img
+                  src={item.image || placeholder2}
+                  alt={item.name}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-kakiBrown dark:text-softBeige">
+                    {item.name}
+                  </h3>
+                  <p className="mt-2 text-sm text-kakiBrown dark:text-softBeige">
+                    카테고리: {item.category || "기타"}
+                  </p>
+                  <p className="mt-1 text-sm text-kakiBrown dark:text-softBeige">
+                    좋아요: {item.like ?? 0}
+                  </p>
+                  <p className="mt-3 text-sm text-warmOrange dark:text-orange-300">
+                    {item.reason}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-kakiBrown px-6 py-8 text-center text-kakiBrown dark:border-darkKaki dark:text-softBeige">
+            {recommendationMessage}
+          </div>
+        )}
       </section>
 
       <section className="mb-8 text-center">

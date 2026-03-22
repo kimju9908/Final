@@ -102,10 +102,11 @@ const CreatePost: React.FC = () => {
     const fetchCategories = async () => {
       try {
         const categoryData = await ForumApi.fetchCategories();
-        setCategories(categoryData as Category[]);
+        setCategories((Array.isArray(categoryData) ? categoryData : []) as Category[]);
       } catch (error) {
         console.error("카테고리 로딩 오류:", error);
         toast.error("카테고리 정보를 불러오는 중 오류가 발생했습니다.");
+        setCategories([]);
       }
     };
     fetchCategories();

@@ -12,7 +12,11 @@ const ForumApi = {
   fetchCategories: () =>
     AxiosInstance.get("/api/forums/categories").then((response) => {
       console.log("Fetched Categories:", response.data);
-      return response.data;
+      const data = response.data;
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.content)) return data.content;
+      if (Array.isArray(data?.categories)) return data.categories;
+      return [];
     }),
 
   getPostsByCategoryId: (categoryId, page = 1, size = 10) => {
