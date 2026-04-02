@@ -4,7 +4,6 @@ package com.kh.back.jwt;
 import com.kh.back.dto.auth.AccessTokenDto;
 import com.kh.back.dto.auth.TokenDto;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +15,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 	public class TokenProvider {
 		private static final String AUTHORITIES_KEY="auth"; //토큰에 저장되는 권한 정보의 key
 		private static final String BEARER_TYPE = "Bearer"; // 토큰의 타입
-		private static final long ACCESS_TOKEN_EXPIRE_TIME = 60 * 60 * 1000; // 1시간
+		private static final long ACCESS_TOKEN_EXPIRE_TIME = 2 * 60 * 60 * 1000L; // 2시간
 		private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7L; // 7일
 		private final Key key; // 토큰 서명을 하기 위한 Key
 
 		//주의점 : @Value 어노테이션은 springframework의 어노테이션이다.
 		public TokenProvider(@Value("${jwt.secret}") String secretKey) {
-			this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512); // HS512 알고리즘을 사용하는 키 생성
+			this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 		}
 
 //		public TokenProvider(@Value("${jwt.secret}") String secretKey) {
@@ -143,6 +143,14 @@ import java.util.stream.Collectors;
 				log.info("JWT 토큰이 잘못되었습니다.");
 			}
 			return false;
+		}
+
+		public Long getMemberId(String token) {
+			return Long.parseLong(parseClaims(token).getSubject());
+		}
+
+		public long getExpirationTime(String token) {
+			return parseClaims(token).getExpiration().getTime();
 		}
 		// 토
 		public String create(String userId) {

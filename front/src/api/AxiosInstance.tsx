@@ -32,16 +32,17 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 401 && !error.config?._retry && !String(error.config?.url || "").includes("/auth/tokens/refresh")) {
       // 401 Unauthorized 에러가 발생하면 토큰 갱신 시도
       try {
         const refreshToken = store.getState().token.refreshToken;
         if (refreshToken) {
+          error.config._retry = true;
           // refreshToken을 사용하여 토큰 갱신
           const rsp = await ReduxApi.refresh(refreshToken);
           console.log("refreshToken", rsp);
           if (rsp.data.grantType === "Bearer") {
-            store.dispatch(setToken({accessToken: rsp.data.accessToken, refreshToken: null}));
+            store.dispatch(setToken({accessToken: rsp.data.accessToken, refreshToken: rsp.data.refreshToken}));
           }
           // 토큰 갱신 후 다시 요청을 보냄
           error.config.headers["Authorization"] = `Bearer ${rsp.data.accessToken}`;

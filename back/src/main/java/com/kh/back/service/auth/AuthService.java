@@ -2,15 +2,12 @@ package com.kh.back.service.auth;
 
 
 import com.kh.back.constant.Authority;
-import com.kh.back.dto.auth.AccessTokenDto;
 import com.kh.back.dto.auth.LoginDto;
 import com.kh.back.dto.auth.SignupDto;
 import com.kh.back.dto.auth.TokenDto;
 import com.kh.back.entity.member.Member;
-import com.kh.back.entity.auth.RefreshToken;
 import com.kh.back.jwt.TokenProvider;
 import com.kh.back.repository.member.MemberRepository;
-import com.kh.back.repository.auth.RefreshTokenRepository;
 import com.kh.back.service.FirebaseService;
 import com.kh.back.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +32,7 @@ public class AuthService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final TokenProvider tokenProvider;
-	private  final RefreshTokenRepository refreshTokenRepository;
+	private final RedisRefreshTokenService redisRefreshTokenService;
 	private  final MemberService memberService;
 	private final FirebaseService firebaseService;
 
@@ -118,7 +115,7 @@ public class AuthService {
 			log.info("authentication : {}", authentication);
 
 			TokenDto token = tokenProvider.generateTokenDto(authentication);
-			refreshTokenSave(member, token);
+			saveRefreshToken(member, token);
 			return token;
 		} catch (RuntimeException e) {
 			// 이미 정의된 메시지가 있는 경우 그대로 전달
@@ -133,35 +130,48 @@ public class AuthService {
 		}
 	}
 
-	public AccessTokenDto refreshAccessToken(String refreshToken) {
-		log.info("일반refreshExist : {}", refreshTokenRepository.existsByRefreshToken(refreshToken));
-		//DB에 일치하는 refreshToken이 있으면
-		if(refreshTokenRepository.existsByRefreshToken(refreshToken) ) {
-			// refreshToken 검증
-			try {
-				if(tokenProvider.validateToken(refreshToken)) {
-					return tokenProvider.generateAccessTokenDto(tokenProvider.getAuthentication(refreshToken));
-				}
-			}catch (RuntimeException e) {
-				log.error("토큰 유효성 검증 중 예외 발생 : {}", e.getMessage());
+	public TokenDto refreshAccessToken(String refreshToken) {
+		try {
+			if (!tokenProvider.validateToken(refreshToken)) {
+				log.warn("[refreshAccessToken] invalid refresh token");
+				return null;
 			}
+
+			Long memberId = tokenProvider.getMemberId(refreshToken);
+			Member member = memberRepository.findById(memberId)
+					.orElseThrow(() -> new IllegalArgumentException("회원 정보가 존재하지 않습니다."));
+
+			if (!redisRefreshTokenService.exists(memberId)) {
+				log.warn("[refreshAccessToken] refresh token reuse detected - no stored token. memberId={}", memberId);
+				redisRefreshTokenService.deleteAllTokensByMember(memberId);
+				throw new RuntimeException("리프레시 토큰 재사용이 감지되었습니다. 다시 로그인해주세요.");
+			}
+
+			if (!redisRefreshTokenService.matches(memberId, refreshToken)) {
+				log.warn("[refreshAccessToken] refresh token reuse detected - mismatch. memberId={}", memberId);
+				redisRefreshTokenService.deleteAllTokensByMember(memberId);
+				throw new RuntimeException("리프레시 토큰 재사용이 감지되었습니다. 다시 로그인해주세요.");
+			}
+
+			Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+			TokenDto rotatedToken = tokenProvider.generateTokenDto(authentication);
+			redisRefreshTokenService.deleteRefreshToken(memberId);
+			saveRefreshToken(member, rotatedToken);
+			log.info("[refreshAccessToken] token rotated. memberId={}", memberId);
+			return rotatedToken;
+		} catch (RuntimeException e) {
+			log.error("[refreshAccessToken] failed: {}", e.getMessage());
+			throw e;
 		}
-		return null;
 	}
 	
-	public void refreshTokenSave(Member member, TokenDto token) {
+	public void saveRefreshToken(Member member, TokenDto token) {
 		try {
-			// 이미 db에 해당 계정으로 저장된 refreshToken 정보가 있다면 삭제
-			log.info("Exists by member: {}", refreshTokenRepository.existsByMember(member));
-			if(refreshTokenRepository.existsByMember(member)) {
-				refreshTokenRepository.deleteByMember(member);
-			}
-			RefreshToken refreshToken = new RefreshToken();
-			String encodedToken = token.getRefreshToken();
-			refreshToken.setRefreshToken(encodedToken);
-			refreshToken.setRefreshTokenExpiresIn(token.getRefreshTokenExpiresIn());
-			refreshToken.setMember(member);
-			refreshTokenRepository.save(refreshToken);
+			redisRefreshTokenService.saveRefreshToken(
+					member.getMemberId(),
+					token.getRefreshToken(),
+					token.getRefreshTokenExpiresIn()
+			);
 		} catch (Exception e) {
 			log.error("리프레시 토큰 저장 실패 : {}", e.getMessage());
 		}

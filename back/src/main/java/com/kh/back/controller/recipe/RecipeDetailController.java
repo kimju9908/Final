@@ -4,6 +4,7 @@ import com.kh.back.dto.recipe.request.AddCocktailRecipeDto;
 import com.kh.back.dto.recipe.request.AddFoodRecipeDto;
 import com.kh.back.dto.recipe.request.ReactionUpdateReqDto;
 import com.kh.back.dto.recipe.res.CocktailResDto;
+import com.kh.back.dto.recipe.res.DirectUploadTestResDto;
 import com.kh.back.dto.recipe.res.FoodResDto;
 import com.kh.back.dto.recipe.res.ReactionSummaryResDto;
 import com.kh.back.service.member.MemberService;
@@ -62,6 +63,35 @@ public class RecipeDetailController {
         Long memberId = Long.parseLong(authentication.getName());
         String jsonData = cocktailRecipeService.updateCocktailRecipe(memberId, recipeRequest);
         return ResponseEntity.ok(jsonData);
+    }
+
+    // 성능 비교용: Flask를 거치지 않고 Spring이 직접 Elasticsearch에 색인
+    @PostMapping("/test/save-recipe-direct")
+    public ResponseEntity<DirectUploadTestResDto> saveRecipeDirect(Authentication authentication, @ModelAttribute AddFoodRecipeDto recipeRequest) {
+        Long memberId = Long.parseLong(authentication.getName());
+        DirectUploadTestResDto response = recipeService.saveRecipeDirect(memberId, recipeRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/test/update-recipe-direct")
+    public ResponseEntity<DirectUploadTestResDto> updateRecipeDirect(Authentication authentication, @ModelAttribute AddFoodRecipeDto recipeRequest) {
+        Long memberId = Long.parseLong(authentication.getName());
+        DirectUploadTestResDto response = recipeService.updateRecipeDirect(memberId, recipeRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/test/save-cocktail-recipe-direct")
+    public ResponseEntity<DirectUploadTestResDto> saveCocktailRecipeDirect(Authentication authentication, @ModelAttribute AddCocktailRecipeDto recipeRequest) {
+        Long memberId = Long.parseLong(authentication.getName());
+        DirectUploadTestResDto response = cocktailRecipeService.saveCocktailRecipeDirect(memberId, recipeRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/test/update-cocktail-recipe-direct")
+    public ResponseEntity<DirectUploadTestResDto> updateCocktailRecipeDirect(Authentication authentication, @ModelAttribute AddCocktailRecipeDto recipeRequest) {
+        Long memberId = Long.parseLong(authentication.getName());
+        DirectUploadTestResDto response = cocktailRecipeService.updateCocktailRecipeDirect(memberId, recipeRequest);
+        return ResponseEntity.ok(response);
     }
 
 

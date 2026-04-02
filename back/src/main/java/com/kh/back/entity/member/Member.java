@@ -38,9 +38,6 @@ public class Member {
 
     @Column(length = 50)
     private String type; // 가입 방식 (예: "kakao", "naver", "direct")
-    
-    @Column(name = "refresh_token")
-    private String refreshToken;
 
     @Column(unique = true, length = 13)
     private String phone;

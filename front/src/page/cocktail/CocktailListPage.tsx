@@ -206,7 +206,7 @@ const CocktailListPage: React.FC = () => {
 
       <section className="mb-16">
         <h2 className="text-xl md:text-2xl font-bold mb-4 text-kakiBrown dark:text-softBeige">
-          Cocktails For You
+            Cocktails For You
         </h2>
         {recommendedCocktails.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

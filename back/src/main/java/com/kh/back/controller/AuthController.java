@@ -1,6 +1,5 @@
 package com.kh.back.controller;
 
-import com.kh.back.dto.auth.AccessTokenDto;
 import com.kh.back.dto.auth.LoginDto;
 import com.kh.back.dto.auth.SignupDto;
 import com.kh.back.dto.auth.TokenDto;
@@ -124,12 +123,17 @@ public class AuthController {
     }
 
     @PostMapping("/tokens/refresh")
-    public ResponseEntity<AccessTokenDto> refreshToken(@RequestBody RefreshTokenReqDto request) {
-        AccessTokenDto accessTokenDto = authService.refreshAccessToken(request.getRefreshToken());
-        if (accessTokenDto == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenReqDto request) {
+        try {
+            TokenDto tokenDto = authService.refreshAccessToken(request.getRefreshToken());
+            if (tokenDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            return ResponseEntity.ok(tokenDto);
+        } catch (RuntimeException e) {
+            log.error("[refreshToken] failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
-        return ResponseEntity.ok(accessTokenDto);
     }
 
     @PatchMapping("/password")
@@ -138,7 +142,6 @@ public class AuthController {
         return ResponseEntity.ok(success);
     }
 }
-
 
 
 

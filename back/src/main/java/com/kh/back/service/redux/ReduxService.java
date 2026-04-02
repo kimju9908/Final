@@ -8,7 +8,6 @@ import com.kh.back.dto.member.res.ReduxResDto;
 import com.kh.back.entity.Reaction;
 import com.kh.back.entity.member.Member;
 import com.kh.back.repository.ReactionRepository;
-import com.kh.back.repository.auth.RefreshTokenRepository;
 import com.kh.back.repository.member.MemberRepository;
 import com.kh.back.service.PurchaseService;
 import com.kh.back.service.member.MemberService;

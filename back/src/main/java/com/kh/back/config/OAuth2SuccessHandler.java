@@ -2,10 +2,9 @@
 
     import com.kh.back.dto.auth.TokenDto;
     import com.kh.back.entity.member.Member;
-    import com.kh.back.entity.auth.RefreshToken;
     import com.kh.back.jwt.TokenProvider;
     import com.kh.back.repository.member.MemberRepository;
-    import com.kh.back.repository.auth.RefreshTokenRepository;
+    import com.kh.back.service.auth.RedisRefreshTokenService;
     import lombok.RequiredArgsConstructor;
     import lombok.extern.slf4j.Slf4j;
     import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +28,7 @@
     @RequiredArgsConstructor
     public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         private final TokenProvider tokenProvider;
-        private final RefreshTokenRepository refreshTokenRepository;
+        private final RedisRefreshTokenService redisRefreshTokenService;
         private final MemberRepository memberRepository;
 
         @Override
@@ -61,18 +60,8 @@
 
             // JWT 생성 (memberId와 role을 포함)
             TokenDto tokenDto = tokenProvider.generateTokenDto(newAuth);
-            log.info("Exists by member: {}", refreshTokenRepository.existsByMember(member));
-            if (refreshTokenRepository.existsByMember(member)) {
-                refreshTokenRepository.deleteByMember(member);
-            }
-
-            RefreshToken refreshToken = new RefreshToken();
-            String encodedToken = tokenDto.getRefreshToken();
-            refreshToken.setRefreshToken(encodedToken);
-            refreshToken.setRefreshTokenExpiresIn(tokenDto.getRefreshTokenExpiresIn());
-            refreshToken.setMember(member);
-
-            refreshTokenRepository.save(refreshToken);
+            redisRefreshTokenService.deleteRefreshToken(member.getMemberId());
+            redisRefreshTokenService.saveRefreshToken(member.getMemberId(), tokenDto.getRefreshToken(), tokenDto.getRefreshTokenExpiresIn());
 
             // 액세스 토큰을 가져와서 리다이렉트 URL에 포함시킴
             String token = tokenDto.getAccessToken();

@@ -2,7 +2,9 @@ package com.kh.back.service.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.back.dto.recipe.request.AddFoodRecipeDto;
+import com.kh.back.dto.recipe.res.DirectUploadTestResDto;
 import com.kh.back.service.FirebaseService;
+import com.kh.back.service.python.DirectElasticIndexService;
 import com.kh.back.service.python.ElasticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 public class AddFoodRecipeService {
     @Autowired
     private ElasticService elasticService;
+    @Autowired
+    private DirectElasticIndexService directElasticIndexService;
     @Autowired
     private FirebaseService firebaseService;
     @Autowired
@@ -104,6 +108,46 @@ public class AddFoodRecipeService {
             return elasticService.updateRecipe(data);
         } catch (IOException e) {
             return "레시피 업데이트 중 오류 발생: " + e.getMessage();
+        }
+    }
+
+    public DirectUploadTestResDto saveRecipeDirect(Long memberId, AddFoodRecipeDto recipeRequest) {
+        long startTime = System.currentTimeMillis();
+        Map<String, Object> recipeData;
+        try {
+            recipeData = createRecipeData(memberId, recipeRequest);
+            String result = directElasticIndexService.uploadRecipe(recipeData);
+            return DirectUploadTestResDto.builder()
+                    .mode("spring-direct-es")
+                    .elapsedMs(System.currentTimeMillis() - startTime)
+                    .result(result)
+                    .build();
+        } catch (Exception e) {
+            return DirectUploadTestResDto.builder()
+                    .mode("spring-direct-es")
+                    .elapsedMs(System.currentTimeMillis() - startTime)
+                    .result("레시피 저장 중 오류 발생: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    public DirectUploadTestResDto updateRecipeDirect(Long memberId, AddFoodRecipeDto recipeRequest) {
+        long startTime = System.currentTimeMillis();
+        Map<String, Object> recipeData;
+        try {
+            recipeData = createRecipeData(memberId, recipeRequest);
+            String result = directElasticIndexService.updateRecipe(recipeData);
+            return DirectUploadTestResDto.builder()
+                    .mode("spring-direct-es")
+                    .elapsedMs(System.currentTimeMillis() - startTime)
+                    .result(result)
+                    .build();
+        } catch (Exception e) {
+            return DirectUploadTestResDto.builder()
+                    .mode("spring-direct-es")
+                    .elapsedMs(System.currentTimeMillis() - startTime)
+                    .result("레시피 업데이트 중 오류 발생: " + e.getMessage())
+                    .build();
         }
     }
 }
