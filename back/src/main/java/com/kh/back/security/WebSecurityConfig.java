@@ -57,7 +57,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 				.and()
 				.csrf().disable()
 				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 				.exceptionHandling()
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint)
