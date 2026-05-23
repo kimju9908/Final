@@ -15,4 +15,5 @@ public interface ReactionRepository extends JpaRepository<Reaction, Long> {
     List<Reaction> findByMember(Member member);
     List<Reaction> findByMemberAndReactionType(Member member, ReactionType reactionType);
     List<Reaction> findByMemberAndReactionTypeAndContentType(Member member, ReactionType reactionType, String contentType);
+    long countByPostIdAndContentTypeAndReactionType(String postId, String contentType, ReactionType reactionType);
 }

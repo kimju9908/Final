@@ -50,6 +50,7 @@ export interface CommentDto {
     nickName: string;
     content: string;
     parentCommentId: number | null;
+    deleted: boolean;
     replies: CommentDto[];
 }
 

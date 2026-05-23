@@ -8,15 +8,9 @@ import com.kh.back.dto.recipe.res.CocktailListResDto;
 import com.kh.back.dto.recipe.res.CocktailResDto;
 import com.kh.back.dto.recipe.res.FoodListResDto;
 import com.kh.back.dto.recipe.res.FoodResDto;
-import com.kh.back.service.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,7 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +30,6 @@ public class ElasticService {
 	private final RestTemplate restTemplate;
 	private final String flaskBaseUrl = "http://localhost:5001";
 	private final ObjectMapper objectMapper;
-	private final RedisService redisService;
-	@Autowired
-	private RedisTemplate<String, Object> redisTemplate;  // RedisTemplate 주입
 
 
 	/**
@@ -183,40 +174,56 @@ public class ElasticService {
 	}
 
 
-	@Scheduled(fixedRate = 60000) // 60초마다 실행
-	public void updateReactionCounts() {
+	/**
+	 * [자동완성 제안]
+	 * Flask /search/autocomplete 를 호출하여 prefix 기반 검색어 목록 반환
+	 *
+	 * @param keyword 입력 중인 검색어 (prefix)
+	 * @param type    "food" 또는 "cocktail"
+	 * @return 이름 목록 (최대 10개, 오류 시 빈 리스트)
+	 */
+	public List<String> getAutocompleteSuggestions(String keyword, String type) {
+		if (keyword == null || keyword.isBlank() || type == null) {
+			return Collections.emptyList();
+		}
 		try {
-			List<Map<String, Object>> reactionCountData = redisService.getAllReactionCounts();
-			if (reactionCountData.isEmpty()) {
-				log.info("[updateReactionCounts] No reaction count data found in Redis.");
-				return;
-			}
+			String encodedQ = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
+			String encodedType = URLEncoder.encode(type, StandardCharsets.UTF_8);
+			URI uri = new URI(flaskBaseUrl + "/search/autocomplete?q=" + encodedQ + "&type=" + encodedType);
+			log.debug("[getAutocompleteSuggestions] URI: {}", uri);
 
-			Map<String, Object> requestBody = new HashMap<>();
-			requestBody.put("reaction_count_data", reactionCountData);
-
-			String jsonData = objectMapper.writeValueAsString(requestBody);
-			URI uri = new URI(flaskBaseUrl + "/update/reaction-counts");
-
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			HttpEntity<String> requestEntity = new HttpEntity<>(jsonData, headers);
-
-			ResponseEntity<String> response = restTemplate.postForEntity(uri, requestEntity, String.class);
-			log.info("[updateReactionCounts] Response from Flask: {}", response.getBody());
-
-			// Redis에서 데이터 삭제
-			redisTemplate.execute((RedisCallback<Void>) connection -> {
-				connection.flushAll();  // 모든 레디스 데이터를 삭제
-				return null;
-			});
-			log.info("[updateReactionCounts] All data cleared from Redis.");
-
+			ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+			List<String> result = objectMapper.readValue(
+					response.getBody(),
+					objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+			);
+			return result != null ? result : Collections.emptyList();
 		} catch (Exception e) {
-			log.error("[updateReactionCounts] Error sending reaction count data to Flask: {}", e.getMessage());
+			log.warn("[getAutocompleteSuggestions] 오류 - keyword={}, type={}: {}", keyword, type, e.getMessage());
+			return Collections.emptyList();
 		}
 	}
 
+	/**
+	 * [인덱스 리셋 + 재색인]
+	 * Flask의 /admin/reset-recipe-indexes 를 호출하여
+	 * recipe_food, recipe_cocktail 인덱스를 삭제 후 재생성하고
+	 * food.json / cocktail.json 원본 데이터를 재색인합니다.
+	 */
+	public String resetAndReimportRecipeIndexes() {
+		try {
+			URI uri = new URI(flaskBaseUrl + "/admin/reset-recipe-indexes");
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<String> requestEntity = new HttpEntity<>("{}", headers);
+			ResponseEntity<String> response = restTemplate.postForEntity(uri, requestEntity, String.class);
+			log.info("[resetAndReimportRecipeIndexes] Response: {}", response.getBody());
+			return response.getBody();
+		} catch (Exception e) {
+			log.error("[resetAndReimportRecipeIndexes] 오류 발생: {}", e.getMessage());
+			return "인덱스 리셋 중 오류: " + e.getMessage();
+		}
+	}
 
 	/**
 	 * 특정 유저가 작성한 레시피 목록 조회 (Elasticsearch에서 가져옴)

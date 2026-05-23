@@ -2,11 +2,11 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchRecipeList } from "../../api/RecipeListApi";
 import RecipeApi from "../../api/RecipeApi";
-import placeholder from "./style/placeholder.jpg";
 import placeholder2 from "./style/placeholder2.png";
 import { CocktailListResDto } from "../../api/dto/CotailListResDto";
 import { CocktailResDto, RecommendedCocktailDto } from "../../api/dto/RecipeDto";
 import { AxiosError } from "axios";
+import SearchSuggestion from "../../component/SearchSuggestion";
 
 // 기존 CocktailListResDto에 image 필드가 없을 경우, CocktailResDto의 image 필드를 사용하도록 타입 병합
 type CocktailForList = CocktailListResDto & { image: string };
@@ -14,6 +14,7 @@ type CocktailForList = CocktailListResDto & { image: string };
 const CocktailListPage: React.FC = () => {
   const [cocktails, setCocktails] = useState<CocktailForList[]>([]);
   const [query, setQuery] = useState<string>("");
+  const [submittedQuery, setSubmittedQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [recommendedCocktails, setRecommendedCocktails] = useState<RecommendedCocktailDto[]>([]);
   const [recommendationMessage, setRecommendationMessage] = useState<string>("AI 추천 칵테일을 불러오는 중입니다.");
@@ -31,7 +32,7 @@ const CocktailListPage: React.FC = () => {
         const categoryUsed =
           catParam !== undefined ? catParam : selectedCategory;
         const response = await fetchRecipeList(
-          query,
+          submittedQuery,
           "cocktail",
           categoryUsed,
           "",
@@ -56,7 +57,7 @@ const CocktailListPage: React.FC = () => {
         console.error("칵테일 목록 조회 중 에러:", error);
       }
     },
-    [query, selectedCategory]
+    [submittedQuery, selectedCategory]
   );
 
   // 칵테일 목록 로드 후, image가 없는 항목들에 대해 RecipeApi.fetchCocktail으로 이미지 업데이트
@@ -88,11 +89,10 @@ const CocktailListPage: React.FC = () => {
     // 단, cocktails가 변경될 때마다 호출되지 않도록 주의 (한번만 업데이트하도록 별도 플래그를 사용할 수도 있음)
   }, [cocktails]);
 
-  const fetchCocktailsData = useCallback(async () => {
+  const fetchCocktailsData = useCallback(() => {
+    setSubmittedQuery(query);
     setPage(1);
-    await loadCocktails(1, selectedCategory);
-    resetObserver();
-  }, [loadCocktails, selectedCategory]);
+  }, [query]);
 
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -184,19 +184,15 @@ const CocktailListPage: React.FC = () => {
 
       <section className="mb-12">
         <div className="flex flex-col md:flex-row max-w-md mx-auto space-y-2 md:space-y-0">
-          <input
-            type="text"
+          <SearchSuggestion
+            searchType="COCKTAIL"
+            query={query}
+            onQueryChange={setQuery}
+            onSearch={fetchCocktailsData}
             placeholder="Search cocktails..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 p-2 border border-kakiBrown dark:border-darkKaki rounded md:rounded-r-none focus:outline-none"
           />
           <button
-            onClick={() => {
-              setPage(1);
-              loadCocktails(1, selectedCategory);
-              resetObserver();
-            }}
+            onClick={fetchCocktailsData}
             className="p-2 bg-warmOrange dark:bg-deepOrange text-white rounded md:rounded-l-none hover:bg-orange-600 dark:hover:bg-deepOrange/90"
           >
             Search

@@ -36,6 +36,9 @@ public class Comment {
     @Column(nullable = false)
     private LocalDateTime createdAt; // 생성 시각 (수동으로 처리)
 
+    @Column(nullable = false)
+    private boolean deleted;
+
     @ManyToOne(fetch = FetchType.LAZY) // 부모 댓글과 연관 관계 설정 (대댓글인 경우)
     @JoinColumn(name = "parent_comment_id") // 부모 댓글과 연결될 필드
     private Comment parentComment; // 부모 댓글
@@ -49,5 +52,6 @@ public class Comment {
         if (createdAt == null) {
             createdAt = LocalDateTime.now(); // 자동으로 현재 시각을 저장
         }
+        deleted = false;
     }
 }

@@ -58,6 +58,11 @@ public class ReActionService {
         return nextReaction;
     }
 
+    @Transactional(readOnly = true)
+    public long getReactionCount(String postId, String contentType, ReactionType reactionType) {
+        return reactionRepository.countByPostIdAndContentTypeAndReactionType(postId, contentType, reactionType);
+    }
+
     private Member getMember(Authentication authentication) {
         if (authentication == null) {
             throw new InsufficientAuthenticationException("좋아요 기능은 로그인 후 사용할 수 있습니다.");

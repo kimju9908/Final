@@ -1,8 +1,10 @@
 package com.kh.back.controller.recipe;
 
+import com.kh.back.constant.SearchType;
 import com.kh.back.dto.recipe.res.CocktailListResDto;
 import com.kh.back.dto.recipe.res.CocktailResDto;
 import com.kh.back.service.recipe.CocktailService;
+import com.kh.back.service.search.SearchLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +13,7 @@ import java.util.List;
 
 /**
  * 칵테일 관련 API
- * <p>Elasticsearch(Flask)에서 데이터 조회</p>
+ * Elasticsearch(Flask)에서 데이터 조회
  */
 @RestController
 @RequestMapping("/api/cocktails")
@@ -20,13 +22,13 @@ import java.util.List;
 public class CocktailController {
 
     private final CocktailService cocktailService;
+    private final SearchLogService searchLogService;  // 검색 기록용
 
     /**
      * 칵테일 검색
-     * ex) GET /api/cocktails/search?q=모히또&category=롱드링크&page=1&size=10
+     * 검색 실행 시 Redis에 검색 키워드 기록 → 인기 검색어 집계에 활용
      *
-     * 변경 이유:
-     * - 클라이언트로부터 검색어를 "q" 파라미터로 받아들임으로써, 서비스와 ElasticService와 일관되게 사용
+     * 예) GET /api/cocktails/search?q=모히또&category=롱드링크&page=1&size=10
      */
     @GetMapping("/search")
     public ResponseEntity<List<CocktailListResDto>> searchCocktails(
@@ -35,13 +37,18 @@ public class CocktailController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
+        // 검색어가 있을 때만 기록
+        if (!q.isBlank()) {
+            searchLogService.recordSearch(q, SearchType.COCKTAIL);
+        }
+
         List<CocktailListResDto> result = cocktailService.searchCocktails(q, category, page, size);
         return ResponseEntity.ok(result);
     }
 
     /**
      * 칵테일 상세 조회
-     * ex) GET /api/cocktails/{id}
+     * 예) GET /api/cocktails/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<CocktailResDto> getCocktailDetail(@PathVariable String id) {

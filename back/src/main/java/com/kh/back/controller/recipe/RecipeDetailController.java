@@ -1,16 +1,15 @@
 package com.kh.back.controller.recipe;
 
+import com.kh.back.constant.ReactionType;
 import com.kh.back.dto.recipe.request.AddCocktailRecipeDto;
 import com.kh.back.dto.recipe.request.AddFoodRecipeDto;
 import com.kh.back.dto.recipe.request.ReactionUpdateReqDto;
-import com.kh.back.dto.recipe.res.CocktailResDto;
 import com.kh.back.dto.recipe.res.DirectUploadTestResDto;
-import com.kh.back.dto.recipe.res.FoodResDto;
 import com.kh.back.dto.recipe.res.ReactionSummaryResDto;
+import com.kh.back.service.action.ReActionService;
 import com.kh.back.service.member.MemberService;
 import com.kh.back.service.recipe.AddCocktailRecipeService;
 import com.kh.back.service.recipe.AddFoodRecipeService;
-import com.kh.back.service.recipe.RecipeService;
 import com.kh.back.service.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
@@ -29,14 +29,12 @@ public class RecipeDetailController {
     private AddFoodRecipeService recipeService;
     @Autowired
     private AddCocktailRecipeService cocktailRecipeService;
-
-
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
     private MemberService memberService;
     @Autowired
-    private RecipeService recipeQueryService;
+    private ReActionService reActionService;
 
     @PostMapping("/save-recipe")
     public ResponseEntity<String> saveRecipe(Authentication authentication, @ModelAttribute AddFoodRecipeDto recipeRequest) {
@@ -44,6 +42,7 @@ public class RecipeDetailController {
         String jsonData = recipeService.saveRecipe(memberId, recipeRequest);
         return ResponseEntity.ok(jsonData);
     }
+
     @PostMapping("/update-recipe")
     public ResponseEntity<String> updateRecipe(Authentication authentication, @ModelAttribute AddFoodRecipeDto recipeRequest) {
         Long memberId = Long.parseLong(authentication.getName());
@@ -65,7 +64,6 @@ public class RecipeDetailController {
         return ResponseEntity.ok(jsonData);
     }
 
-    // 성능 비교용: Flask를 거치지 않고 Spring이 직접 Elasticsearch에 색인
     @PostMapping("/test/save-recipe-direct")
     public ResponseEntity<DirectUploadTestResDto> saveRecipeDirect(Authentication authentication, @ModelAttribute AddFoodRecipeDto recipeRequest) {
         Long memberId = Long.parseLong(authentication.getName());
@@ -94,20 +92,20 @@ public class RecipeDetailController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping("/reaction")
     public ResponseEntity<ReactionSummaryResDto> updateReaction(
             Authentication authentication,
             @RequestBody ReactionUpdateReqDto requestDto
     ) {
-        Object recipeDetail = recipeQueryService.getRecipeDetail(requestDto.getPostId(), requestDto.getType());
+        long likeCount = reActionService.getReactionCount(requestDto.getPostId(), requestDto.getType(), ReactionType.LIKE);
+        long dislikeCount = reActionService.getReactionCount(requestDto.getPostId(), requestDto.getType(), ReactionType.DISLIKE);
         ReactionSummaryResDto response = redisService.updateReaction(
                 authentication,
                 requestDto.getPostId(),
                 requestDto.getType(),
                 requestDto.getRequestedReaction(),
-                extractLikeCount(recipeDetail),
-                extractDislikeCount(recipeDetail)
+                likeCount,
+                dislikeCount
         );
         return ResponseEntity.ok(response);
     }
@@ -118,34 +116,15 @@ public class RecipeDetailController {
             @RequestParam String postId,
             @RequestParam String type
     ) {
-        Object recipeDetail = recipeQueryService.getRecipeDetail(postId, type);
+        long likeCount = reActionService.getReactionCount(postId, type, ReactionType.LIKE);
+        long dislikeCount = reActionService.getReactionCount(postId, type, ReactionType.DISLIKE);
         ReactionSummaryResDto response = redisService.getReactionSummary(
                 authentication,
                 postId,
                 type,
-                extractLikeCount(recipeDetail),
-                extractDislikeCount(recipeDetail)
+                likeCount,
+                dislikeCount
         );
         return ResponseEntity.ok(response);
-    }
-
-    private long extractLikeCount(Object recipeDetail) {
-        if (recipeDetail instanceof FoodResDto foodResDto) {
-            return foodResDto.getLike();
-        }
-        if (recipeDetail instanceof CocktailResDto cocktailResDto) {
-            return cocktailResDto.getLike();
-        }
-        return 0L;
-    }
-
-    private long extractDislikeCount(Object recipeDetail) {
-        if (recipeDetail instanceof FoodResDto foodResDto) {
-            return foodResDto.getDislike();
-        }
-        if (recipeDetail instanceof CocktailResDto cocktailResDto) {
-            return cocktailResDto.getDislike();
-        }
-        return 0L;
     }
 }

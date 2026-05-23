@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 public class RecipeService {
 
     private final ElasticService elasticService;
+    private final RecipePostService recipePostService;
 
     /**
      * 레시피 검색
@@ -82,17 +82,11 @@ public class RecipeService {
      * @param size     페이지 당 항목 수
      * @return 레시피 목록 (id, title, content_type)
      */
+    /**
+     * 특정 유저가 작성한 레시피 목록 조회 (DB 기반)
+     * - author 정보는 ES가 아닌 DB(RecipePost)에서 관리
+     */
     public List<Map<String, Object>> getUserRecipes(Long memberId, int page, int size) {
-        List<Map<String, Object>> rawList = elasticService.getUserRecipes(memberId, page, size);
-
-        return rawList.stream()
-                .map(recipe -> {
-                    Map<String, Object> recipeMap = new HashMap<>();
-                    recipeMap.put("title", recipe.get("title"));
-                    recipeMap.put("content_type", recipe.getOrDefault("content_type", "N/A")); // 🔹 createdAt 제거
-                    recipeMap.put("id", recipe.get("id"));
-                    return recipeMap;
-                })
-                .collect(Collectors.toList());
+        return recipePostService.getUserRecipes(memberId, page, size);
     }
 }

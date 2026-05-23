@@ -73,6 +73,13 @@ def get_index_and_mapping(file_type: str):
 # 기존 도메인(칵테일, 음식 등) 관련 엔드포인트 (변경 없이 그대로 유지)
 # ================================================================
 
+# ES에 저장하지 않을 필드 (DB에서 관리)
+ES_EXCLUDED_FIELDS = {"like", "dislike", "author", "updateId"}
+
+def strip_db_fields(data: dict) -> dict:
+    """like, dislike, author 등 DB에서 관리할 필드를 제거한 ES 저장용 데이터 반환"""
+    return {k: v for k, v in data.items() if k not in ES_EXCLUDED_FIELDS}
+
 # 글 하나 업로드
 @app.route("/upload/one", methods=["POST"])
 def upload_one():
@@ -81,19 +88,23 @@ def upload_one():
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        file_type = request.form.get("type")
+        # type을 JSON body에서 우선 읽기 (form fallback)
+        file_type = data.get("type") or request.form.get("type")
         if not file_type:
             return jsonify({"error": "Type is required"}), 400
 
         index_name, mapping_file = get_index_and_mapping(file_type)
+        if not index_name:
+            return jsonify({"error": "Invalid type"}), 400
 
         # 인덱스가 없으면 매핑을 적용하여 생성
         if not es.indices.exists(index=index_name):
             create_index_if_not_exists(index_name, mapping_file)
 
-        # 데이터 삽입
-        es.index(index=index_name, body=data)
-        return jsonify({"message": "Data uploaded successfully"}), 200
+        # DB 관리 필드 제거 후 ES에 저장
+        es_data = strip_db_fields(data)
+        res = es.index(index=index_name, body=es_data)
+        return jsonify({"message": "Data uploaded successfully", "id": res["_id"]}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 @app.route("/update/reaction-counts", methods=["POST"])
@@ -191,10 +202,11 @@ def upload_json():
         if not es.indices.exists(index=index_name):
             create_index_if_not_exists(index_name, mapping_file)
 
-        # JSON 데이터 읽기
+        # JSON 데이터 읽기 (DB 관리 필드 제거 후 색인)
         data = json.load(file)
         for item in data:
-            es.index(index=index_name, body=item)
+            es_item = strip_db_fields(item)
+            es.index(index=index_name, body=es_item)
 
         return jsonify({"message": "Data uploaded successfully"}), 200
     except Exception as e:
@@ -277,7 +289,7 @@ def search():
 
         # 2) forum_post인 경우, comments 배열도 함께 가져오도록 source_fields에 추가
         if type_filter == "food":
-            source_fields = ["name", "RCP_PAT2", "RCP_WAY2", "like", "abv", "ATT_FILE_NO_MAIN"]
+            source_fields = ["name", "RCP_PAT2", "RCP_WAY2", "ATT_FILE_NO_MAIN"]
         elif type_filter == "forum_post":
             source_fields = [
                 "title", "content", "authorName", "contentJSON",
@@ -285,7 +297,7 @@ def search():
                 "category", "comments", "sticky"
             ]
         else:
-            source_fields = ["name", "category", "like", "abv"]
+            source_fields = ["name", "category", "abv", "image"]
 
         body = {
             "from": (page - 1) * size,
@@ -323,6 +335,83 @@ def search():
         return jsonify(results), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# ──────────────────────────────────────────────────────────────────
+# 자동완성 (prefix 기반)
+# GET /search/autocomplete?q=김치&type=food
+# GET /search/autocomplete?q=moj&type=cocktail
+# ──────────────────────────────────────────────────────────────────
+@app.route("/search/autocomplete", methods=["GET"])
+def autocomplete():
+    """
+    prefix 기반 자동완성 엔드포인트
+    - match_phrase_prefix 를 사용하여 name 필드에서 prefix 매칭
+    - 중복 제거 후 최대 10개 반환
+    - 오류 발생 시 빈 배열 반환 (프론트엔드가 안전하게 처리 가능)
+    """
+    try:
+        q = (request.args.get("q") or "").strip()
+        type_filter = (request.args.get("type") or "").strip()
+        size = request.args.get("size", 10, type=int)
+
+        if not q or not type_filter:
+            return jsonify([]), 200
+
+        index_name, _ = get_index_and_mapping(type_filter)
+        if not index_name:
+            return jsonify({"error": "Invalid type"}), 400
+
+        body = {
+            "size": size * 2,  # 중복 제거 후 size개 확보
+            "_source": ["name"],
+            "query": {
+                "bool": {
+                    "should": [
+                        {
+                            "match_phrase_prefix": {
+                                "name": {"query": q, "max_expansions": 20, "boost": 3}
+                            }
+                        },
+                        {
+                            "nested": {
+                                "path": "ingredients",
+                                "query": {
+                                    "match_phrase_prefix": {
+                                        "ingredients.ingredient": {
+                                            "query": q,
+                                            "max_expansions": 20
+                                        }
+                                    }
+                                },
+                                "boost": 1
+                            }
+                        }
+                    ],
+                    "minimum_should_match": 1
+                }
+            }
+        }
+
+        res = es.search(index=index_name, body=body)
+        hits = res.get("hits", {}).get("hits", [])
+
+        # name 추출 + 중복 제거 (ES 스코어 순 유지 → 이름 매칭이 앞에)
+        seen = set()
+        result = []
+        for hit in hits:
+            name = hit.get("_source", {}).get("name")
+            if name and name not in seen:
+                seen.add(name)
+                result.append(name)
+                if len(result) >= size:
+                    break
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        app.logger.error(f"[autocomplete] 오류: {str(e)}")
+        return jsonify([]), 200  # 오류 시 빈 배열 반환 (프론트 안전 처리)
 
 
 # 검색 알코올 (레시피용; 단 하나만 남김)
@@ -1392,6 +1481,62 @@ def get_user_recipes():
         return jsonify(results), 200
     except Exception as e:
         app.logger.error(f"Error in get_user_recipes: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/admin/reset-recipe-indexes", methods=["POST"])
+def reset_recipe_indexes():
+    """
+    recipe_food, recipe_cocktail 인덱스를 삭제하고 food.json/cocktail.json 으로 재색인합니다.
+    like, dislike, author 필드는 ES에 저장하지 않습니다 (DB에서 관리).
+    """
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        results = {}
+
+        configs = [
+            ("recipe_food",     "food_mapping.json",     "food.json"),
+            ("recipe_cocktail", "cocktail_mapping.json",  "cocktail.json"),
+        ]
+
+        for index_name, mapping_file, data_file in configs:
+            # 1. 기존 인덱스 삭제
+            if es.indices.exists(index=index_name):
+                es.indices.delete(index=index_name)
+                app.logger.info(f"[reset] 인덱스 '{index_name}' 삭제 완료")
+
+            # 2. 새 매핑으로 인덱스 생성
+            mapping_path = os.path.join(base_dir, mapping_file)
+            if os.path.exists(mapping_path):
+                mapping = load_mapping(mapping_path)
+                es.indices.create(index=index_name, body=mapping)
+            else:
+                es.indices.create(index=index_name, body={})
+            app.logger.info(f"[reset] 인덱스 '{index_name}' 생성 완료")
+
+            # 3. JSON 데이터 로드 후 색인 (DB 관리 필드 제외)
+            data_path = os.path.join(base_dir, data_file)
+            if not os.path.exists(data_path):
+                results[index_name] = {"error": f"{data_file} 파일 없음"}
+                app.logger.error(f"[reset] 데이터 파일 없음: {data_path}")
+                continue
+
+            with open(data_path, "r", encoding="utf-8") as f:
+                items = json.load(f)
+
+            count = 0
+            for item in items:
+                es_item = strip_db_fields(item)
+                es.index(index=index_name, body=es_item)
+                count += 1
+
+            results[index_name] = {"indexed": count}
+            app.logger.info(f"[reset] '{index_name}': {count}개 문서 색인 완료")
+
+        return jsonify({"message": "인덱스 재설정 및 재색인 완료", "results": results}), 200
+    except Exception as e:
+        error_message = traceback.format_exc()
+        app.logger.error(f"[reset] 인덱스 재설정 오류:\n{error_message}")
         return jsonify({"error": str(e)}), 500
 
 

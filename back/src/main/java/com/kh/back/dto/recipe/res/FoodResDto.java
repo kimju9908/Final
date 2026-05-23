@@ -7,11 +7,6 @@ import lombok.*;
 
 import java.util.List;
 
-/**
- * 음식 레시피 상세 응답 DTO
- * - 입력 시 "RCP_NA_TIP", "ATT_FILE_NO_MAIN", "RCP_PAT2", "RCP_WAY2" 등으로 받아들이고,
- *   출력 시에는 각각 description, image, category, cookingMethod라는 키로 반환합니다.
- */
 @Getter
 @Setter
 @ToString
@@ -41,12 +36,6 @@ public class FoodResDto extends SearchResDto {
     @JsonProperty("instructions")
     @JsonAlias("MANUALS")
     private List<FoodManualDto> instructions;
-
-    private int like;
-    @JsonProperty("dislike")
-    @JsonAlias({"dislike", "report"})
-    private int dislike;
-    private int author;
 
     @Getter
     @Setter

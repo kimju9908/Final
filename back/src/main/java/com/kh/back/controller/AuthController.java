@@ -9,6 +9,7 @@ import com.kh.back.dto.auth.request.PasswordChangeReqDto;
 import com.kh.back.dto.auth.request.PhoneRequestDto;
 import com.kh.back.dto.auth.request.RefreshTokenReqDto;
 import com.kh.back.dto.auth.request.SmsTokenVerificationReqDto;
+import com.kh.back.jwt.TokenProvider;
 import com.kh.back.service.auth.AuthService;
 import com.kh.back.service.auth.EmailService;
 import com.kh.back.service.auth.SmsService;
@@ -17,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @CrossOrigin(origins = "http://localhost:3000")
@@ -38,6 +43,7 @@ public class AuthController {
     private final SmsService smsService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
 
     // 회원가입 폼에서 자주 호출되는 중복 확인 조회 API
     @GetMapping("/emails/exists")
@@ -140,6 +146,27 @@ public class AuthController {
     public ResponseEntity<Boolean> changePassword(@RequestBody PasswordChangeReqDto request) {
         boolean success = emailService.changePassword(request.getPassword(), passwordEncoder);
         return ResponseEntity.ok(success);
+    }
+
+    // 로그아웃: Refresh Token 삭제 + Access Token 블랙리스트 등록
+    @DeleteMapping("/tokens")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String accessToken = resolveToken(request);
+        if (!StringUtils.hasText(accessToken) || !tokenProvider.validateToken(accessToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Long memberId = tokenProvider.getMemberId(accessToken);
+        authService.logout(memberId, accessToken);
+        log.info("[logout] memberId={} 로그아웃 요청 처리 완료", memberId);
+        return ResponseEntity.ok().build();
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
     }
 }
 

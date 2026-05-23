@@ -1,8 +1,14 @@
 {
   "mappings": {
     "properties": {
+      "id": {
+        "type": "long"
+      },
       "name": {
-        "type": "text"
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
       },
       "RCP_WAY2": {
         "type": "keyword"
@@ -20,7 +26,7 @@
             "type": "text"
           },
           "amount": {
-            "type": "text"
+            "type": "keyword"
           }
         }
       },
@@ -37,15 +43,6 @@
             "type": "keyword"
           }
         }
-      },
-      "like": {
-        "type" : "long"
-      },
-      "dislike": {
-        "type" : "long"
-      },
-      "author" : {
-        "type": "long"
       }
     }
   }

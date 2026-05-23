@@ -67,5 +67,10 @@ const AuthApi = {
       params: { phone },
     });
   },
+  logout: async (accessToken: string) => {
+    return await axios.delete(Commons.BASE_URL + "/auth/tokens", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  },
 };
 export default AuthApi;

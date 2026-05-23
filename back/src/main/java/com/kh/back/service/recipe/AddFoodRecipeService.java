@@ -1,5 +1,6 @@
 package com.kh.back.service.recipe;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.back.dto.recipe.request.AddFoodRecipeDto;
 import com.kh.back.dto.recipe.res.DirectUploadTestResDto;
@@ -25,41 +26,35 @@ public class AddFoodRecipeService {
     private FirebaseService firebaseService;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private RecipePostService recipePostService;
 
-    // ✅ 이미지 파일 여부 확인
-
-
-    // ✅ 공통 레시피 데이터 생성 메서드
-    private Map<String, Object> createRecipeData(Long memberId, AddFoodRecipeDto recipeRequest) throws IOException {
-        // 대표 이미지 업로드 (파일이 있을 경우에만 업로드)
+    /**
+     * ES에 저장할 음식 레시피 데이터 생성 (like, dislike, author 제외)
+     */
+    private Map<String, Object> createEsData(AddFoodRecipeDto recipeRequest) throws IOException {
+        // 대표 이미지 업로드
         String mainImageUrl;
         if (recipeRequest.getAttFileNoMain() != null) {
-            // 새로 추가한 메인 이미지 파일이 있는 경우
             mainImageUrl = firebaseService.uploadImage(recipeRequest.getAttFileNoMain(), recipeRequest.getName());
         } else if (recipeRequest.getExistingMainImageUrl() != null) {
-            // 기존 메인 이미지 URL이 있는 경우
             mainImageUrl = recipeRequest.getExistingMainImageUrl();
         } else {
-            // 이미지가 없는 경우
             mainImageUrl = null;
         }
 
-        // 매뉴얼 이미지 업로드 (파일이 있을 경우에만 업로드)
+        // 매뉴얼 이미지 업로드
         List<Map<String, String>> manualsWithUrls = recipeRequest.getManuals().stream()
                 .map(manual -> {
                     try {
                         String imageUrl;
                         if (manual.getNewImageFile() != null) {
-                            // 새로 추가한 조리법 이미지 파일이 있는 경우
                             imageUrl = firebaseService.uploadImage(manual.getNewImageFile(), recipeRequest.getName());
                         } else if (manual.getExistingImageUrl() != null) {
-                            // 기존 조리법 이미지 URL이 있는 경우
                             imageUrl = manual.getExistingImageUrl();
                         } else {
-                            // 이미지가 없는 경우
                             imageUrl = null;
                         }
-
                         Map<String, String> manualMap = new HashMap<>();
                         manualMap.put("text", manual.getText());
                         manualMap.put("imageUrl", imageUrl);
@@ -70,31 +65,47 @@ public class AddFoodRecipeService {
                 })
                 .collect(Collectors.toList());
 
-        // 레시피 데이터 생성
-        Map<String, Object> recipeData = new HashMap<>();
-        recipeData.put("updateId", recipeRequest.getPostId());
-        recipeData.put("type", recipeRequest.getType());
-        recipeData.put("name", recipeRequest.getName());
-        recipeData.put("RCP_WAY2", recipeRequest.getRcpWay2());
-        recipeData.put("RCP_PAT2", recipeRequest.getRcpPat2());
-        recipeData.put("INFO_WGT", recipeRequest.getInfoWgt());
-        recipeData.put("ATT_FILE_NO_MAIN", mainImageUrl);
-        recipeData.put("RCP_NA_TIP", recipeRequest.getRcpNaTip());
-        recipeData.put("ingredients", recipeRequest.getIngredients());
-        recipeData.put("MANUALS", manualsWithUrls);
-        recipeData.put("like", 0L);
-        recipeData.put("dislike", 0L);
-        recipeData.put("author", memberId);
+        // ES 저장용 데이터 (like, dislike, author 제외)
+        Map<String, Object> esData = new HashMap<>();
+        esData.put("updateId", recipeRequest.getPostId());
+        esData.put("type", recipeRequest.getType());
+        esData.put("name", recipeRequest.getName());
+        esData.put("RCP_WAY2", recipeRequest.getRcpWay2());
+        esData.put("RCP_PAT2", recipeRequest.getRcpPat2());
+        esData.put("INFO_WGT", recipeRequest.getInfoWgt());
+        esData.put("ATT_FILE_NO_MAIN", mainImageUrl);
+        esData.put("RCP_NA_TIP", recipeRequest.getRcpNaTip());
+        esData.put("ingredients", recipeRequest.getIngredients());
+        esData.put("MANUALS", manualsWithUrls);
+        // like, dislike, author 는 DB(Reaction, RecipePost)에서 관리 → ES 저장 안 함
 
-        return recipeData;
+        return esData;
+    }
+
+    /** ES 응답 JSON에서 _id 추출 */
+    private String extractEsDocId(String responseBody) {
+        try {
+            JsonNode node = objectMapper.readTree(responseBody);
+            return node.path("id").asText(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ✅ 새로운 레시피 저장
     public String saveRecipe(Long memberId, AddFoodRecipeDto recipeRequest) {
         try {
-            Map<String, Object> recipeData = createRecipeData(memberId, recipeRequest);
-            String data = objectMapper.writeValueAsString(recipeData);
-            return elasticService.uploadRecipe(data);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String jsonData = objectMapper.writeValueAsString(esData);
+            String response = elasticService.uploadRecipe(jsonData);
+
+            // DB에 소유권 저장
+            String esDocId = extractEsDocId(response);
+            if (esDocId != null) {
+                recipePostService.saveRecipePost(
+                        memberId, esDocId, "food", recipeRequest.getName());
+            }
+            return response;
         } catch (IOException e) {
             return "레시피 저장 중 오류 발생: " + e.getMessage();
         }
@@ -103,9 +114,9 @@ public class AddFoodRecipeService {
     // ✅ 기존 레시피 업데이트
     public String updateRecipe(Long memberId, AddFoodRecipeDto recipeRequest) {
         try {
-            Map<String, Object> recipeData = createRecipeData(memberId, recipeRequest);
-            String data = objectMapper.writeValueAsString(recipeData);
-            return elasticService.updateRecipe(data);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String jsonData = objectMapper.writeValueAsString(esData);
+            return elasticService.updateRecipe(jsonData);
         } catch (IOException e) {
             return "레시피 업데이트 중 오류 발생: " + e.getMessage();
         }
@@ -113,10 +124,16 @@ public class AddFoodRecipeService {
 
     public DirectUploadTestResDto saveRecipeDirect(Long memberId, AddFoodRecipeDto recipeRequest) {
         long startTime = System.currentTimeMillis();
-        Map<String, Object> recipeData;
         try {
-            recipeData = createRecipeData(memberId, recipeRequest);
-            String result = directElasticIndexService.uploadRecipe(recipeData);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String result = directElasticIndexService.uploadRecipe(esData);
+
+            // Direct 업로드 시에도 DB 저장
+            String esDocId = extractEsDocId(result);
+            if (esDocId != null) {
+                recipePostService.saveRecipePost(
+                        memberId, esDocId, "food", recipeRequest.getName());
+            }
             return DirectUploadTestResDto.builder()
                     .mode("spring-direct-es")
                     .elapsedMs(System.currentTimeMillis() - startTime)
@@ -133,10 +150,9 @@ public class AddFoodRecipeService {
 
     public DirectUploadTestResDto updateRecipeDirect(Long memberId, AddFoodRecipeDto recipeRequest) {
         long startTime = System.currentTimeMillis();
-        Map<String, Object> recipeData;
         try {
-            recipeData = createRecipeData(memberId, recipeRequest);
-            String result = directElasticIndexService.updateRecipe(recipeData);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String result = directElasticIndexService.updateRecipe(esData);
             return DirectUploadTestResDto.builder()
                     .mode("spring-direct-es")
                     .elapsedMs(System.currentTimeMillis() - startTime)

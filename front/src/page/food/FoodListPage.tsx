@@ -6,6 +6,7 @@ import { FoodListResDto } from "../../api/dto/FoodListResDto";
 import RecipeApi from "../../api/RecipeApi";
 import { RecommendedFoodDto } from "../../api/dto/RecipeDto";
 import { AxiosError } from "axios";
+import SearchSuggestion from "../../component/SearchSuggestion";
 
 /**
  * 음식 레시피 목록 페이지 (작은 카드 버전)
@@ -29,6 +30,7 @@ const FoodListPage: React.FC = () => {
   // -------------------- 상태 변수 --------------------
   const [foods, setFoods] = useState<FoodListResDto[]>([]);
   const [query, setQuery] = useState<string>("");
+  const [submittedQuery, setSubmittedQuery] = useState<string>("");
   const [selectedFilterType, setSelectedFilterType] =
     useState<string>("카테고리");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -69,7 +71,7 @@ const FoodListPage: React.FC = () => {
         }
 
         const response = await fetchRecipeList(
-          query,
+          submittedQuery,
           recipeType, // 동적 타입을 사용 (예: food, cocktail 등)
           finalCategory,
           finalMethod,
@@ -90,7 +92,7 @@ const FoodListPage: React.FC = () => {
       }
     },
     [
-      query,
+      submittedQuery,
       selectedCategory,
       selectedCookingMethod,
       selectedFilterType,
@@ -103,10 +105,9 @@ const FoodListPage: React.FC = () => {
    * - 페이지를 초기화하고, 데이터를 다시 불러오며, Observer를 재설정함.
    */
   const handleSearch = useCallback(() => {
+    setSubmittedQuery(query);
     setPage(1);
-    loadFoods(1);
-    resetObserver();
-  }, [loadFoods]);
+  }, [query]);
 
   /**
    * IntersectionObserver의 콜백 함수
@@ -216,12 +217,12 @@ const FoodListPage: React.FC = () => {
       {/* 검색 바 섹션 */}
       <section className="mb-12">
         <div className="flex flex-col md:flex-row max-w-md mx-auto space-y-2 md:space-y-0">
-          <input
-            type="text"
+          <SearchSuggestion
+            searchType="FOOD"
+            query={query}
+            onQueryChange={setQuery}
+            onSearch={handleSearch}
             placeholder="Search food recipes..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 p-2 border border-kakiBrown dark:border-darkKaki rounded md:rounded-r-none focus:outline-none"
           />
           <button
             onClick={handleSearch}

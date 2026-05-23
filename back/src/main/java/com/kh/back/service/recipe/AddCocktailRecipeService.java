@@ -1,5 +1,6 @@
 package com.kh.back.service.recipe;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kh.back.dto.recipe.request.AddCocktailRecipeDto;
 import com.kh.back.dto.recipe.res.DirectUploadTestResDto;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class AddCocktailRecipeService {
@@ -25,51 +24,61 @@ public class AddCocktailRecipeService {
     private FirebaseService firebaseService;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private RecipePostService recipePostService;
 
-
-    private boolean isFile(String image) {
-        // 파일인지 URL인지 구별하는 로직 (단순히 URL 형식이 아닌 경우 파일로 처리)
-        return !image.startsWith("http") && !image.startsWith("https");
-    }
-
-    private Map<String, Object> createRecipeData(Long memberId, AddCocktailRecipeDto recipeRequest) throws IOException {
+    /**
+     * ES에 저장할 칵테일 레시피 데이터 생성 (like, dislike, author 제외)
+     */
+    private Map<String, Object> createEsData(AddCocktailRecipeDto recipeRequest) throws IOException {
         String image;
-
-
         if (recipeRequest.getImage() != null) {
-            // 새로 추가한 메인 이미지 파일이 있는 경우
             image = firebaseService.uploadImage(recipeRequest.getImage(), recipeRequest.getName());
         } else if (recipeRequest.getExistingImage() != null) {
-            // 기존 메인 이미지 URL이 있는 경우
             image = recipeRequest.getExistingImage();
         } else {
-            // 이미지가 없는 경우
             image = null;
         }
 
-        Map<String, Object> recipeData = new HashMap<>();
-        recipeData.put("updateId", recipeRequest.getPostId());
-        recipeData.put("type", recipeRequest.getType());
-        recipeData.put("name", recipeRequest.getName());
-        recipeData.put("glass", recipeRequest.getGlass());
-        recipeData.put("category", recipeRequest.getCategory());
-        recipeData.put("ingredients", recipeRequest.getIngredients());
-        recipeData.put("garnish", recipeRequest.getGarnish());
-        recipeData.put("preparation", recipeRequest.getPreparation());
-        recipeData.put("abv", recipeRequest.getAbv());
-        recipeData.put("like", 0L);
-        recipeData.put("dislike", 0L);
-        recipeData.put("author", memberId);
-        recipeData.put("image", image);
+        Map<String, Object> esData = new HashMap<>();
+        esData.put("updateId", recipeRequest.getPostId());
+        esData.put("type", recipeRequest.getType());
+        esData.put("name", recipeRequest.getName());
+        esData.put("glass", recipeRequest.getGlass());
+        esData.put("category", recipeRequest.getCategory());
+        esData.put("ingredients", recipeRequest.getIngredients());
+        esData.put("garnish", recipeRequest.getGarnish());
+        esData.put("preparation", recipeRequest.getPreparation());
+        esData.put("abv", recipeRequest.getAbv());
+        esData.put("image", image);
+        // like, dislike, author 는 DB(Reaction, RecipePost)에서 관리 → ES 저장 안 함
 
-        return recipeData;
+        return esData;
+    }
+
+    /** ES 응답 JSON에서 _id 추출 */
+    private String extractEsDocId(String responseBody) {
+        try {
+            JsonNode node = objectMapper.readTree(responseBody);
+            return node.path("id").asText(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public String saveCocktailRecipe(Long memberId, AddCocktailRecipeDto recipeRequest) {
         try {
-            Map<String, Object> recipeData = createRecipeData(memberId, recipeRequest);
-            String data = objectMapper.writeValueAsString(recipeData);
-            return elasticService.uploadRecipe(data);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String jsonData = objectMapper.writeValueAsString(esData);
+            String response = elasticService.uploadRecipe(jsonData);
+
+            // DB에 소유권 저장
+            String esDocId = extractEsDocId(response);
+            if (esDocId != null) {
+                recipePostService.saveRecipePost(
+                        memberId, esDocId, "cocktail", recipeRequest.getName());
+            }
+            return response;
         } catch (IOException e) {
             return "레시피 저장 중 오류 발생: " + e.getMessage();
         }
@@ -77,9 +86,9 @@ public class AddCocktailRecipeService {
 
     public String updateCocktailRecipe(Long memberId, AddCocktailRecipeDto recipeRequest) {
         try {
-            Map<String, Object> recipeData = createRecipeData(memberId, recipeRequest);
-            String data = objectMapper.writeValueAsString(recipeData);
-            return elasticService.updateRecipe(data);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String jsonData = objectMapper.writeValueAsString(esData);
+            return elasticService.updateRecipe(jsonData);
         } catch (IOException e) {
             return "레시피 업데이트 중 오류 발생: " + e.getMessage();
         }
@@ -87,10 +96,16 @@ public class AddCocktailRecipeService {
 
     public DirectUploadTestResDto saveCocktailRecipeDirect(Long memberId, AddCocktailRecipeDto recipeRequest) {
         long startTime = System.currentTimeMillis();
-        Map<String, Object> recipeData;
         try {
-            recipeData = createRecipeData(memberId, recipeRequest);
-            String result = directElasticIndexService.uploadRecipe(recipeData);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String result = directElasticIndexService.uploadRecipe(esData);
+
+            // Direct 업로드 시에도 DB 저장 (응답에서 id 파싱)
+            String esDocId = extractEsDocId(result);
+            if (esDocId != null) {
+                recipePostService.saveRecipePost(
+                        memberId, esDocId, "cocktail", recipeRequest.getName());
+            }
             return DirectUploadTestResDto.builder()
                     .mode("spring-direct-es")
                     .elapsedMs(System.currentTimeMillis() - startTime)
@@ -107,10 +122,9 @@ public class AddCocktailRecipeService {
 
     public DirectUploadTestResDto updateCocktailRecipeDirect(Long memberId, AddCocktailRecipeDto recipeRequest) {
         long startTime = System.currentTimeMillis();
-        Map<String, Object> recipeData;
         try {
-            recipeData = createRecipeData(memberId, recipeRequest);
-            String result = directElasticIndexService.updateRecipe(recipeData);
+            Map<String, Object> esData = createEsData(recipeRequest);
+            String result = directElasticIndexService.updateRecipe(esData);
             return DirectUploadTestResDto.builder()
                     .mode("spring-direct-es")
                     .elapsedMs(System.currentTimeMillis() - startTime)
@@ -124,7 +138,4 @@ public class AddCocktailRecipeService {
                     .build();
         }
     }
-
-
-
 }

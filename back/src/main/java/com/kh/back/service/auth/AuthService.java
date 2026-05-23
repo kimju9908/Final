@@ -33,6 +33,7 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final TokenProvider tokenProvider;
 	private final RedisRefreshTokenService redisRefreshTokenService;
+	private final RedisTokenBlacklistService redisTokenBlacklistService;
 	private  final MemberService memberService;
 	private final FirebaseService firebaseService;
 
@@ -177,6 +178,15 @@ public class AuthService {
 		}
 	}
 	
+	public void logout(Long memberId, String accessToken) {
+		// 1. Redis에서 Refresh Token 삭제
+		redisRefreshTokenService.deleteRefreshToken(memberId);
+		// 2. Access Token 블랙리스트 등록 (만료 시각까지 TTL 설정)
+		long expiresAtMillis = tokenProvider.getExpirationTime(accessToken);
+		redisTokenBlacklistService.addToBlacklist(accessToken, expiresAtMillis);
+		log.info("[logout] memberId={} 로그아웃 완료", memberId);
+	}
+
 	public String getEmailByPhone(String phone) {
 		try {
 			Member member = memberRepository.findByPhone(phone)

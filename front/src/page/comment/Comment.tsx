@@ -181,11 +181,11 @@ const CommentItem: React.FC<{
           {comment.nickName}:
         </Typography>
         <Typography variant="body1" sx={commentStyles.content}>
-          {comment.content}
+          {comment.deleted ? "삭제된 댓글입니다." : comment.content}
         </Typography>
 
         {/* 삭제 버튼 (댓글 작성자와 로그인한 사용자가 같을 경우에만 표시) */}
-        {memberId === comment.memberId && (
+        {memberId === comment.memberId && !comment.deleted && (
           <Button
             size="small"
             onClick={() => onDeleteComment(comment.commentId)}
@@ -213,11 +213,11 @@ const CommentItem: React.FC<{
                 sx={commentStyles.replyItem}
               >
                 <Typography variant="body2" sx={commentStyles.replyText}>
-                  - {reply.nickName}: {reply.content}
+                  - {reply.nickName}: {reply.deleted ? "삭제된 댓글입니다." : reply.content}
                 </Typography>
 
                 {/* 대댓글 삭제 버튼 (작성자와 로그인한 사용자가 같을 경우에만 표시) */}
-                {memberId === reply.memberId && (
+                {memberId === reply.memberId && !reply.deleted && (
                   <Button
                     size="small"
                     onClick={() => onDeleteComment(reply.commentId)}
@@ -240,9 +240,10 @@ const CommentItem: React.FC<{
             rows={2}
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="대댓글을 작성하세요"
+            placeholder={comment.deleted ? "삭제된 댓글에는 답글을 작성할 수 없습니다." : "대댓글을 작성하세요"}
             variant="outlined"
             sx={commentStyles.replyTextField}
+            disabled={comment.deleted}
           />
 
           <Box sx={commentStyles.buttonContainer}>
@@ -251,7 +252,7 @@ const CommentItem: React.FC<{
                 onReplySubmit(comment.commentId, replyContent);
                 setReplyContent("");
               }}
-              disabled={replyContent.trim() === ""}
+              disabled={replyContent.trim() === "" || comment.deleted}
               sx={commentStyles.replySubmitButton}
             >
               대댓글 작성

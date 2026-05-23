@@ -1,8 +1,14 @@
 {
   "mappings": {
     "properties": {
+      "id": {
+        "type": "long"
+      },
       "name": {
-        "type": "text"
+        "type": "text",
+        "fields": {
+          "keyword": { "type": "keyword" }
+        }
       },
       "glass": {
         "type": "keyword"
@@ -10,7 +16,7 @@
       "category": {
         "type": "keyword"
       },
-      "ingredients":   {
+      "ingredients": {
         "type": "nested",
         "properties": {
           "unit": {
@@ -22,7 +28,7 @@
           "ingredient": {
             "type": "text"
           },
-          "special" : {
+          "special": {
             "type": "text"
           }
         }
@@ -36,17 +42,8 @@
       "abv": {
         "type": "float"
       },
-      "like": {
-        "type" : "long"
-      },
-      "dislike": {
-        "type" : "long"
-      },
-      "author" : {
-        "type": "long"
-      },
-      "image" : {
-        "type" : "keyword"
+      "image": {
+        "type": "keyword"
       }
     }
   }

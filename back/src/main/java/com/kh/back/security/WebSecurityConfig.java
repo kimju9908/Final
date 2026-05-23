@@ -6,6 +6,7 @@ import com.kh.back.security.JwtAuthenticationEntryPoint;
 import com.kh.back.security.JwtAccessDeniedHandler;
 import com.kh.back.jwt.JwtFilter;
 import com.kh.back.service.auth.OAuth2UserService;
+import com.kh.back.service.auth.RedisTokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 
 	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	private final TokenProvider tokenProvider;
+	private final RedisTokenBlacklistService blacklistService;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 	private final OAuth2UserService oauth2UserService;
@@ -69,7 +71,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 						"/", "/static/**", "/auth/**", "/ws/**", "/oauth2/**",
 						"/api/v1/auth/**", "/api/v1/payments/**", "/chat/**", "/flask/**", "/review/**", "/comments/**",
 						"/**/public/**", "/pay/**", "/test/**", "/search", "/api/foodrecipes/**", "/api/recipes/**",
-						"/favicon.ico", "/manifest.json", "/logo192.png", "/logo512.png"
+						"/favicon.ico", "/manifest.json", "/logo192.png", "/logo512.png",
+						"/admin/**", "/api/search/**", "/api/cocktails/**"
 				).permitAll()
 				.antMatchers("/v2/api-docs", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**", "/swagger/**", "/sign-api/exception").permitAll()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -82,7 +85,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
 						.userInfoEndpoint(endpoint -> endpoint.userService(oauth2UserService))
 						.successHandler(oAuth2SuccessHandler)
 				)
-				.apply(new JwtSecurityConfig(tokenProvider));
+				.apply(new JwtSecurityConfig(tokenProvider, blacklistService));
 
 		return http.build();
 	}

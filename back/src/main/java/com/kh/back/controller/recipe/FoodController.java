@@ -1,8 +1,10 @@
 package com.kh.back.controller.recipe;
 
+import com.kh.back.constant.SearchType;
 import com.kh.back.dto.recipe.res.FoodListResDto;
 import com.kh.back.dto.recipe.res.FoodResDto;
 import com.kh.back.service.recipe.FoodService;
+import com.kh.back.service.search.SearchLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,28 +22,27 @@ import java.util.List;
 public class FoodController {
 
     private final FoodService foodService;
+    private final SearchLogService searchLogService;  // 검색 기록용
 
     /**
      * 음식 레시피 검색 API
-     * 검색어(q), 카테고리(category)와 함께 조리방법(cookingMethod) 필터도 전달할 수 있음.
-     * 예) GET /api/foodrecipes/search?q=김치&category=반찬&cookingMethod=&page=1&size=10
+     * 검색 실행 시 Redis에 검색 키워드 기록 → 인기 검색어 집계에 활용
      *
-     * @param q             검색어 (없으면 빈 문자열로 처리)
-     * @param category      카테고리 필터 (예: 반찬, 국&찌개, 후식 등; 없으면 빈 문자열)
-     * @param cookingMethod 조리방법 필터 (예: 찌기, 끓이기, 굽기 등; 없으면 빈 문자열)
-     * @param page          페이지 번호
-     * @param size          페이지 당 항목 수
-     * @return FoodListResDto 목록
+     * 예) GET /api/foodrecipes/search?q=김치&category=반찬&cookingMethod=&page=1&size=10
      */
     @GetMapping("/search")
     public ResponseEntity<List<FoodListResDto>> searchFoodRecipes(
             @RequestParam(name = "q", required = false, defaultValue = "") String q,
             @RequestParam(required = false, defaultValue = "") String category,
-            @RequestParam(required = false, defaultValue = "") String cookingMethod, // 조리방법 필터 추가
+            @RequestParam(required = false, defaultValue = "") String cookingMethod,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        // FoodService에서 두 가지 필터 값을 모두 전달받아 검색 수행
+        // 검색어가 있을 때만 기록 (빈 문자열 전체검색은 기록하지 않음)
+        if (!q.isBlank()) {
+            searchLogService.recordSearch(q, SearchType.FOOD);
+        }
+
         List<FoodListResDto> result = foodService.searchFoodRecipes(q, category, cookingMethod, page, size);
         return ResponseEntity.ok(result);
     }
@@ -49,9 +50,6 @@ public class FoodController {
     /**
      * 음식 레시피 상세 조회
      * 예) GET /api/foodrecipes/{id}
-     *
-     * @param id 음식 레시피 문서의 고유 ID
-     * @return FoodResDto
      */
     @GetMapping("/{id}")
     public ResponseEntity<FoodResDto> getFoodRecipeDetail(@PathVariable String id) {

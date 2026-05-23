@@ -37,8 +37,8 @@ services:
     networks:
       - redis-network
       - backend
-#    volumes:
-#      - ../flask:/app
+    volumes:
+      - ../flask:/app
 
   rq-worker:
     build:

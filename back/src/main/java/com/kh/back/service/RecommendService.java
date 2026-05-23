@@ -12,6 +12,7 @@ import com.kh.back.dto.recipe.res.FoodResDto;
 import com.kh.back.entity.Reaction;
 import com.kh.back.entity.member.Member;
 import com.kh.back.repository.ReactionRepository;
+import com.kh.back.repository.RecipePostRepository;
 import com.kh.back.service.member.MemberService;
 import com.kh.back.service.python.ElasticService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,40 @@ public class RecommendService {
 	private final ElasticService elasticService;
 	private final MemberService memberService;
 	private final ReactionRepository reactionRepository;
+	private final RecipePostRepository recipePostRepository;  // author 조회용
+
+	// ──────────────────────────────────────────────
+	// DB 헬퍼: like/author 를 ES DTO 대신 DB에서 조회
+	// (like/author 가 ES에서 제거되었으므로 DB 기반으로 조회)
+	// ──────────────────────────────────────────────
+
+	/** DB에서 특정 레시피의 좋아요 수 조회 */
+	private long getLikeCount(String postId, String contentType) {
+		if (postId == null) return 0L;
+		try {
+			return reactionRepository.countByPostIdAndContentTypeAndReactionType(postId, contentType, ReactionType.LIKE);
+		} catch (Exception e) {
+			log.warn("[RecommendService] getLikeCount 조회 실패 postId={}: {}", postId, e.getMessage());
+			return 0L;
+		}
+	}
+
+	/** DB(RecipePost)에서 ES 문서의 작성자 ID 조회 (시스템 레시피 = 0) */
+	private long getAuthorId(String esDocId) {
+		if (esDocId == null) return 0L;
+		try {
+			return recipePostRepository.findByEsDocId(esDocId)
+					.map(p -> p.getMember().getMemberId())
+					.orElse(0L);
+		} catch (Exception e) {
+			log.warn("[RecommendService] getAuthorId 조회 실패 esDocId={}: {}", esDocId, e.getMessage());
+			return 0L;
+		}
+	}
+
+	// ──────────────────────────────────────────────
+	// 칵테일 추천
+	// ──────────────────────────────────────────────
 
 	public List<RecommendedCocktailResDto> recommendCocktailsByLikes(Authentication authentication) {
 		Member member = Optional.ofNullable(memberService.convertAuthToEntity(authentication))
@@ -62,23 +97,30 @@ public class RecommendService {
 		if (likedCocktails.isEmpty()) {
 			return List.of();
 		}
+
 		Map<String, Long> categoryWeights = likedCocktails.stream()
 				.map(CocktailResDto::getCategory)
 				.filter(category -> category != null && !category.isBlank())
 				.collect(Collectors.groupingBy(category -> category, Collectors.counting()));
+
 		Map<String, Long> ingredientWeights = likedCocktails.stream()
-				.flatMap(cocktail -> cocktail.getIngredients().stream())
+				.flatMap(cocktail -> Optional.ofNullable(cocktail.getIngredients()).orElse(List.of()).stream())
 				.map(ingredient -> ingredient.getIngredient())
 				.filter(Objects::nonNull)
 				.map(String::trim)
 				.filter(name -> !name.isBlank())
 				.map(String::toLowerCase)
 				.collect(Collectors.groupingBy(name -> name, Collectors.counting()));
-		Map<Long, Long> authorWeights = likedCocktails.stream()
-				.map(CocktailResDto::getAuthor)
-				.filter(author -> author > 0)
-				.collect(Collectors.groupingBy(author -> author, Collectors.counting()));
+
+		// author 는 DB에서 조회
+		Map<Long, Long> authorWeights = likedRecipeIds.stream()
+				.collect(Collectors.groupingBy(this::getAuthorId, Collectors.counting()))
+				.entrySet().stream()
+				.filter(e -> e.getKey() > 0)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
 		Map<String, RecommendedCocktailResDto> candidates = new LinkedHashMap<>();
+
 		categoryWeights.keySet().forEach(category ->
 				Optional.ofNullable(elasticService.search("", "cocktail", category, "", 1, 40))
 						.orElse(List.of())
@@ -87,6 +129,7 @@ public class RecommendService {
 						.map(CocktailListResDto.class::cast)
 						.forEach(recipe -> mergeCocktailCandidate(candidates, recipe, categoryWeights, ingredientWeights, authorWeights, likedRecipeIds))
 		);
+
 		authorWeights.keySet().forEach(authorId ->
 				elasticService.getUserRecipes(authorId, 1, 24).stream()
 						.map(recipe -> recipe.get("id"))
@@ -98,6 +141,7 @@ public class RecommendService {
 						.map(CocktailResDto.class::cast)
 						.forEach(recipe -> mergeCocktailCandidate(candidates, recipe, categoryWeights, ingredientWeights, authorWeights, likedRecipeIds))
 		);
+
 		Optional.ofNullable(elasticService.search("", "cocktail", "", "", 1, 80))
 				.orElse(List.of())
 				.stream()
@@ -116,6 +160,10 @@ public class RecommendService {
 				.collect(Collectors.toList());
 	}
 
+	// ──────────────────────────────────────────────
+	// 음식 추천
+	// ──────────────────────────────────────────────
+
 	public List<RecommendedFoodResDto> recommendFoodsByLikes(Authentication authentication) {
 		Member member = Optional.ofNullable(memberService.convertAuthToEntity(authentication))
 				.orElseThrow(() -> new AccessDeniedException("추천 기능은 로그인 후 이용할 수 있습니다."));
@@ -125,6 +173,7 @@ public class RecommendService {
 		if (likedReactions.isEmpty()) {
 			return List.of();
 		}
+
 		Set<String> likedRecipeIds = likedReactions.stream()
 				.map(Reaction::getPostId)
 				.filter(Objects::nonNull)
@@ -140,15 +189,18 @@ public class RecommendService {
 		if (likedRecipes.isEmpty()) {
 			return List.of();
 		}
+
 		Map<String, Long> categoryWeights = likedRecipes.stream()
 				.map(FoodResDto::getCategory)
 				.filter(category -> category != null && !category.isBlank())
 				.collect(Collectors.groupingBy(category -> category, Collectors.counting()));
 
-		Map<Integer, Long> authorWeights = likedRecipes.stream()
-				.map(FoodResDto::getAuthor)
-				.filter(author -> author > 0)
-				.collect(Collectors.groupingBy(author -> author, Collectors.counting()));
+		// author 는 DB에서 조회 (Long 타입으로 통일)
+		Map<Long, Long> authorWeights = likedRecipeIds.stream()
+				.collect(Collectors.groupingBy(this::getAuthorId, Collectors.counting()))
+				.entrySet().stream()
+				.filter(e -> e.getKey() > 0)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		Map<String, RecommendedFoodResDto> candidates = new LinkedHashMap<>();
 
@@ -160,8 +212,9 @@ public class RecommendService {
 						.map(FoodListResDto.class::cast)
 						.forEach(recipe -> mergeCandidate(candidates, recipe, categoryWeights, authorWeights, likedRecipeIds))
 		);
+
 		authorWeights.keySet().forEach(authorId ->
-				elasticService.getUserRecipes((long) authorId, 1, 24).stream()
+				elasticService.getUserRecipes(authorId, 1, 24).stream()
 						.map(recipe -> recipe.get("id"))
 						.filter(String.class::isInstance)
 						.map(String.class::cast)
@@ -188,22 +241,24 @@ public class RecommendService {
 				.collect(Collectors.toList());
 	}
 
+	// ──────────────────────────────────────────────
+	// 내부 헬퍼: 후보 병합 (음식)
+	// ──────────────────────────────────────────────
+
 	private void mergeCandidate(
 			Map<String, RecommendedFoodResDto> candidates,
 			FoodListResDto recipe,
 			Map<String, Long> categoryWeights,
-			Map<Integer, Long> authorWeights,
+			Map<Long, Long> authorWeights,
 			Set<String> likedRecipeIds
 	) {
 		if (recipe == null || recipe.getId() == null || likedRecipeIds.contains(recipe.getId())) {
 			return;
 		}
-
 		FoodResDto detail = Optional.ofNullable((FoodResDto) elasticService.detail(recipe.getId(), "food")).orElse(null);
 		if (detail == null || likedRecipeIds.contains(detail.getId())) {
 			return;
 		}
-
 		mergeCandidate(candidates, detail, categoryWeights, authorWeights, likedRecipeIds);
 	}
 
@@ -211,7 +266,7 @@ public class RecommendService {
 			Map<String, RecommendedFoodResDto> candidates,
 			FoodResDto recipe,
 			Map<String, Long> categoryWeights,
-			Map<Integer, Long> authorWeights,
+			Map<Long, Long> authorWeights,
 			Set<String> likedRecipeIds
 	) {
 		if (recipe == null || recipe.getId() == null || likedRecipeIds.contains(recipe.getId())) {
@@ -219,12 +274,15 @@ public class RecommendService {
 		}
 
 		long matchedCategoryCount = categoryWeights.getOrDefault(recipe.getCategory(), 0L);
-		long matchedAuthorCount = authorWeights.getOrDefault(recipe.getAuthor(), 0L);
+		long authorId = getAuthorId(recipe.getId());
+		long matchedAuthorCount = authorWeights.getOrDefault(authorId, 0L);
+
 		if (matchedCategoryCount == 0 && matchedAuthorCount == 0) {
 			return;
 		}
 
-		double score = (matchedCategoryCount * 3.0) + (matchedAuthorCount * 4.0) + (recipe.getLike() * 0.05);
+		long likeCount = getLikeCount(recipe.getId(), "food");
+		double score = (matchedCategoryCount * 3.0) + (matchedAuthorCount * 4.0) + (likeCount * 0.05);
 		String reason = buildReason(recipe.getCategory(), matchedCategoryCount, matchedAuthorCount);
 
 		RecommendedFoodResDto newCandidate = RecommendedFoodResDto.builder()
@@ -232,8 +290,8 @@ public class RecommendService {
 				.name(recipe.getName())
 				.image(recipe.getImage())
 				.category(recipe.getCategory())
-				.like(recipe.getLike())
-				.author(recipe.getAuthor())
+				.like((int) likeCount)
+				.author((int) authorId)
 				.reason(reason)
 				.recommendationScore(score)
 				.build();
@@ -258,31 +316,27 @@ public class RecommendService {
 						.filter(FoodListResDto.class::isInstance)
 						.map(FoodListResDto.class::cast)
 						.filter(recipe -> recipe.getId() != null && !likedRecipeIds.contains(recipe.getId()))
-						.forEach(recipe -> candidates.putIfAbsent(
-								recipe.getId(),
-								RecommendedFoodResDto.builder()
-										.id(recipe.getId())
-										.name(recipe.getName())
-										.image(recipe.getImage())
-										.category(recipe.getCategory())
-										.like(recipe.getLike() == null ? 0 : recipe.getLike().intValue())
-										.author(0)
-										.reason("좋아요한 " + entry.getKey() + " 스타일과 비슷해요")
-										.recommendationScore((entry.getValue() * 3.0) + ((recipe.getLike() == null ? 0 : recipe.getLike()) * 0.05))
-										.build()
-						)));
+						.forEach(recipe -> {
+							long likeCount = getLikeCount(recipe.getId(), "food");
+							candidates.putIfAbsent(
+									recipe.getId(),
+									RecommendedFoodResDto.builder()
+											.id(recipe.getId())
+											.name(recipe.getName())
+											.image(recipe.getImage())
+											.category(recipe.getCategory())
+											.like((int) likeCount)
+											.author(0)
+											.reason("좋아요한 " + entry.getKey() + " 스타일과 비슷해요")
+											.recommendationScore((entry.getValue() * 3.0) + (likeCount * 0.05))
+											.build()
+							);
+						}));
 	}
 
-	private String buildReason(String category, long matchedCategoryCount, long matchedAuthorCount) {
-		List<String> reasons = new java.util.ArrayList<>();
-		if (matchedCategoryCount > 0 && category != null && !category.isBlank()) {
-			reasons.add("좋아요한 " + category + " 스타일과 비슷해요");
-		}
-		if (matchedAuthorCount > 0) {
-			reasons.add("자주 좋아요한 작성자의 레시피예요");
-		}
-		return String.join(" · ", reasons);
-	}
+	// ──────────────────────────────────────────────
+	// 내부 헬퍼: 후보 병합 (칵테일)
+	// ──────────────────────────────────────────────
 
 	private void mergeCocktailCandidate(
 			Map<String, RecommendedCocktailResDto> candidates,
@@ -295,12 +349,10 @@ public class RecommendService {
 		if (recipe == null || recipe.getId() == null || likedRecipeIds.contains(recipe.getId())) {
 			return;
 		}
-
 		CocktailResDto detail = Optional.ofNullable((CocktailResDto) elasticService.detail(recipe.getId(), "cocktail")).orElse(null);
 		if (detail == null || likedRecipeIds.contains(detail.getId())) {
 			return;
 		}
-
 		mergeCocktailCandidate(candidates, detail, categoryWeights, ingredientWeights, authorWeights, likedRecipeIds);
 	}
 
@@ -317,7 +369,8 @@ public class RecommendService {
 		}
 
 		long matchedCategoryCount = categoryWeights.getOrDefault(recipe.getCategory(), 0L);
-		long matchedAuthorCount = authorWeights.getOrDefault(recipe.getAuthor(), 0L);
+		long authorId = getAuthorId(recipe.getId());
+		long matchedAuthorCount = authorWeights.getOrDefault(authorId, 0L);
 		long matchedIngredientScore = Optional.ofNullable(recipe.getIngredients())
 				.orElse(List.of())
 				.stream()
@@ -333,7 +386,8 @@ public class RecommendService {
 			return;
 		}
 
-		double score = (matchedCategoryCount * 3.0) + (matchedIngredientScore * 2.5) + (matchedAuthorCount * 4.0) + (recipe.getLike() * 0.05);
+		long likeCount = getLikeCount(recipe.getId(), "cocktail");
+		double score = (matchedCategoryCount * 3.0) + (matchedIngredientScore * 2.5) + (matchedAuthorCount * 4.0) + (likeCount * 0.05);
 		String reason = buildCocktailReason(recipe.getCategory(), matchedCategoryCount, matchedIngredientScore, matchedAuthorCount);
 
 		RecommendedCocktailResDto newCandidate = RecommendedCocktailResDto.builder()
@@ -341,8 +395,8 @@ public class RecommendService {
 				.name(recipe.getName())
 				.image(recipe.getImage())
 				.category(recipe.getCategory())
-				.like(recipe.getLike())
-				.author(recipe.getAuthor())
+				.like(likeCount)
+				.author(authorId)
 				.reason(reason)
 				.recommendationScore(score)
 				.build();
@@ -352,6 +406,21 @@ public class RecommendService {
 				newCandidate,
 				(existing, incoming) -> existing.getRecommendationScore() >= incoming.getRecommendationScore() ? existing : incoming
 		);
+	}
+
+	// ──────────────────────────────────────────────
+	// 추천 이유 문구 생성
+	// ──────────────────────────────────────────────
+
+	private String buildReason(String category, long matchedCategoryCount, long matchedAuthorCount) {
+		List<String> reasons = new java.util.ArrayList<>();
+		if (matchedCategoryCount > 0 && category != null && !category.isBlank()) {
+			reasons.add("좋아요한 " + category + " 스타일과 비슷해요");
+		}
+		if (matchedAuthorCount > 0) {
+			reasons.add("자주 좋아요한 작성자의 레시피예요");
+		}
+		return String.join(" · ", reasons);
 	}
 
 	private String buildCocktailReason(String category, long matchedCategoryCount, long matchedIngredientScore, long matchedAuthorCount) {
