@@ -1117,10 +1117,6 @@ def search_comments_by_member(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ================================================================
-# ML 모델
-# ================================================================
-
 @app.post("/model/train")
 def train_machine_learning(type: str = Query(default="")):
     try:
