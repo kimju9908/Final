@@ -38,11 +38,6 @@ import java.util.stream.Collectors;
 			this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 		}
 
-//		public TokenProvider(@Value("${jwt.secret}") String secretKey) {
-//			byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-//			this.key = Keys.hmacShaKeyFor(keyBytes);
-//		}
-
 		// 토큰 생성
 		public TokenDto generateTokenDto(Authentication authentication) {
 			// 권한 정보 문자열 생성,
