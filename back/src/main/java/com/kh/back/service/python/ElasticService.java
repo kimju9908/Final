@@ -28,7 +28,7 @@ import java.util.Map;
 public class ElasticService {
 
 	private final RestTemplate restTemplate;
-	private final String flaskBaseUrl = "http://localhost:5001";
+	private final String fastapiBaseUrl = "http://localhost:5001";
 	private final ObjectMapper objectMapper;
 
 
@@ -59,7 +59,7 @@ public class ElasticService {
 					? "&cookingMethod=" + URLEncoder.encode(cookingMethod, StandardCharsets.UTF_8)
 					: "";
 
-			URI uri = new URI(flaskBaseUrl + "/search?q=" + encodedQuery
+			URI uri = new URI(fastapiBaseUrl + "/search?q=" + encodedQuery
 					+ "&type=" + encodedType
 					+ categoryParam
 					+ methodParam
@@ -86,7 +86,7 @@ public class ElasticService {
 	 */
 	public SearchResDto detail(String id, String type) {
 		try {
-			URI uri = new URI(flaskBaseUrl + "/detail/" + id + "?type=" + type);
+			URI uri = new URI(fastapiBaseUrl + "/detail/" + id + "?type=" + type);
 			log.info("[detail] Calling Flask with URI: {}", uri);
 
 			ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -105,7 +105,7 @@ public class ElasticService {
 	 */
 	public String uploadRecipe(String jsonData) {
 		try {
-			URI uri = new URI(flaskBaseUrl + "/upload/one");
+			URI uri = new URI(fastapiBaseUrl + "/upload/one");
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -123,7 +123,7 @@ public class ElasticService {
 
 	public String updateRecipe(String jsonData) {
 		try {
-			URI uri = new URI(flaskBaseUrl + "/update/one");
+			URI uri = new URI(fastapiBaseUrl + "/update/one");
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -189,7 +189,7 @@ public class ElasticService {
 		try {
 			String encodedQ = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 			String encodedType = URLEncoder.encode(type, StandardCharsets.UTF_8);
-			URI uri = new URI(flaskBaseUrl + "/search/autocomplete?q=" + encodedQ + "&type=" + encodedType);
+			URI uri = new URI(fastapiBaseUrl + "/search/autocomplete?q=" + encodedQ + "&type=" + encodedType);
 			log.debug("[getAutocompleteSuggestions] URI: {}", uri);
 
 			ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -212,7 +212,7 @@ public class ElasticService {
 	 */
 	public String resetAndReimportRecipeIndexes() {
 		try {
-			URI uri = new URI(flaskBaseUrl + "/admin/reset-recipe-indexes");
+			URI uri = new URI(fastapiBaseUrl + "/admin/reset-recipe-indexes");
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
 			HttpEntity<String> requestEntity = new HttpEntity<>("{}", headers);
@@ -225,18 +225,11 @@ public class ElasticService {
 		}
 	}
 
-	/**
-	 * 특정 유저가 작성한 레시피 목록 조회 (Elasticsearch에서 가져옴)
-	 *
-	 * @param memberId 유저 ID
-	 * @param page     페이지 번호
-	 * @param size     페이지 당 항목 수
-	 * @return 레시피 목록 (id, title, content_type)
-	 */
+
 	public List<Map<String, Object>> getUserRecipes(Long memberId, int page, int size) {
 		try {
 			// URL을 직접 문자열로 조합
-			String url = flaskBaseUrl + "/api/profile/recipes?memberId=" + memberId
+			String url = fastapiBaseUrl + "/api/profile/recipes?memberId=" + memberId
 					+ "&page=" + page
 					+ "&size=" + size;
 

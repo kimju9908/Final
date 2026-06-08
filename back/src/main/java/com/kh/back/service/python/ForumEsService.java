@@ -30,7 +30,7 @@ public class ForumEsService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private final String flaskBaseUrl = "http://localhost:5001";
+    private final String fastapiBaseUrl = "http://localhost:5001";
 
     // === 게시글 관련 메서드 ===
 
@@ -44,7 +44,7 @@ public class ForumEsService {
                 requestDto.setSticky(false);
             }
 
-            URI uri = new URI(flaskBaseUrl + "/forum/post");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post");
             String jsonBody = objectMapper.writeValueAsString(requestDto);
 
             HttpHeaders headers = new HttpHeaders();
@@ -70,7 +70,7 @@ public class ForumEsService {
     public ForumPostResponseDto updatePostTitle(String postId, String newTitle, String editedBy) {
         try {
             // Flask 엔드포인트 URI 구성
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/title");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/title");
 
             // 수정할 데이터를 Map에 담음 (키: title, editedBy)
             Map<String, Object> payload = new HashMap<>();
@@ -104,7 +104,7 @@ public class ForumEsService {
     public ForumPostResponseDto updatePostContent(String postId, String contentJSON, String editedBy, boolean isAdmin) {
         try {
             // Flask 엔드포인트 URI 구성
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/content");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/content");
 
             // 수정할 데이터를 Map에 담음 (키: contentJSON, editedBy, isAdmin)
             Map<String, Object> payload = new HashMap<>();
@@ -137,7 +137,7 @@ public class ForumEsService {
     public boolean deletePost(String postId, String removedBy) {
         try {
             // removedBy를 쿼리 파라미터로 전송
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId
                     + "?removedBy=" + URLEncoder.encode(removedBy, StandardCharsets.UTF_8));
 
             restTemplate.delete(uri);
@@ -154,7 +154,7 @@ public class ForumEsService {
      */
     public boolean hardDeletePost(String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/hard-delete");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/hard-delete");
             restTemplate.delete(uri);
             log.info("hardDeletePost 호출됨, 게시글 ID: {}", postId);
             return true;
@@ -169,7 +169,7 @@ public class ForumEsService {
      */
     public ForumPostResponseDto reportPost(String postId, Integer reporterId, String reason) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/report");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/report");
             String jsonBody = String.format("{\"reporterId\": %d, \"reason\": \"%s\"}", reporterId, reason);
 
             HttpHeaders headers = new HttpHeaders();
@@ -191,7 +191,7 @@ public class ForumEsService {
      */
     public boolean hidePost(String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/hide");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/hide");
             restTemplate.postForEntity(uri, null, String.class);
             log.info("hidePost 호출됨, 게시글 ID: {}", postId);
             return true;
@@ -206,7 +206,7 @@ public class ForumEsService {
      */
     public boolean restorePost(String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/restore");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/restore");
             restTemplate.postForEntity(uri, null, String.class);
             log.info("restorePost 호출됨, 게시글 ID: {}", postId);
             return true;
@@ -221,7 +221,7 @@ public class ForumEsService {
      */
     public boolean incrementViewCount(String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/increment-view");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/increment-view");
             restTemplate.postForEntity(uri, null, String.class);
             log.info("incrementViewCount 호출됨, 게시글 ID: {}", postId);
             return true;
@@ -252,7 +252,7 @@ public class ForumEsService {
 
             // 3. Flask 백엔드로 보낼 URI를 생성합니다.
             //    예: http://localhost:5001/search?q=...&type=forum_post&category=...&page=safePage&size=...
-            URI uri = new URI(flaskBaseUrl + "/search?q=" + encodedQ
+            URI uri = new URI(fastapiBaseUrl + "/search?q=" + encodedQ
                     + "&type=" + encodedType
                     + categoryParam
                     + "&page=" + safePage
@@ -291,7 +291,7 @@ public class ForumEsService {
      */
     public ForumPostResponseDto detail(String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId);
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId);
             log.info("[ForumEsService.detail] 호출 URI: {}", uri);
 
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -319,7 +319,7 @@ public class ForumEsService {
 
     public ForumPostCommentResponseDto createComment(ForumPostCommentRequestDto requestDto) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment");
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment");
             String jsonBody = objectMapper.writeValueAsString(requestDto);
 
             HttpHeaders headers = new HttpHeaders();
@@ -347,7 +347,7 @@ public class ForumEsService {
                                                      boolean isAdmin) {
         try {
             // Flask의 댓글 수정 엔드포인트 URI 구성
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId);
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId);
 
             // 수정할 데이터를 Map에 담음 (키: postId, contentJSON, editedBy, isAdmin)
             Map<String, Object> payload = new HashMap<>();
@@ -384,7 +384,7 @@ public class ForumEsService {
     public List<ForumPostCommentResponseDto> searchCommentsForPost(String postId) {
         try {
             // 올바른 엔드포인트: /forum/comments?postId=...
-            URI uri = new URI(flaskBaseUrl + "/forum/comments?postId=" + postId);
+            URI uri = new URI(fastapiBaseUrl + "/forum/comments?postId=" + postId);
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
             log.info("searchCommentsForPost 응답: {}", response);
 
@@ -401,7 +401,7 @@ public class ForumEsService {
 
     public boolean deleteComment(Integer commentId, String postId, Long deletedBy) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId
                     + "?postId=" + URLEncoder.encode(postId, StandardCharsets.UTF_8)
                     + "&deletedBy=" + deletedBy);
             restTemplate.delete(uri);
@@ -415,7 +415,7 @@ public class ForumEsService {
 
     public boolean hardDeleteComment(Integer commentId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId + "/hard-delete");
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId + "/hard-delete");
             restTemplate.delete(uri);
             log.info("hardDeleteComment 호출됨, 댓글 ID: {}", commentId);
             return true;
@@ -427,7 +427,7 @@ public class ForumEsService {
 
     public ForumPostCommentResponseDto reportComment(Integer commentId, Integer reporterId, String reason, String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId + "/report");
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId + "/report");
             // reporterId, reason, postId를 모두 포함하는 JSON payload 생성
             String jsonBody = String.format(
                     "{\"reporterId\": %d, \"reason\": \"%s\", \"postId\": \"%s\"}",
@@ -452,7 +452,7 @@ public class ForumEsService {
 
     public boolean hideComment(Integer commentId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId + "/hide");
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId + "/hide");
             restTemplate.postForEntity(uri, null, String.class);
             log.info("hideComment 호출됨, 댓글 ID: {}", commentId);
             return true;
@@ -464,7 +464,7 @@ public class ForumEsService {
 
     public ForumPostCommentResponseDto restoreComment(Integer commentId, String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId + "/restore?postId="
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId + "/restore?postId="
                     + URLEncoder.encode(postId, StandardCharsets.UTF_8));
             ResponseEntity<String> response = restTemplate.postForEntity(uri, null, String.class);
             log.info("restoreComment 응답: {}", response);
@@ -477,7 +477,7 @@ public class ForumEsService {
 
     public boolean incrementCommentLikes(Integer commentId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId + "/increment-like");
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId + "/increment-like");
             restTemplate.postForEntity(uri, null, String.class);
             log.info("incrementCommentLikes 호출됨, 댓글 ID: {}", commentId);
             return true;
@@ -491,7 +491,7 @@ public class ForumEsService {
 
     public ForumCategoryDto createCategory(ForumCategoryDto categoryDto) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/category");
+            URI uri = new URI(fastapiBaseUrl + "/forum/category");
             String jsonBody = objectMapper.writeValueAsString(categoryDto);
 
             HttpHeaders headers = new HttpHeaders();
@@ -511,7 +511,7 @@ public class ForumEsService {
 
     public ForumCategoryDto getCategoryByTitle(String title) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/category/search?title="
+            URI uri = new URI(fastapiBaseUrl + "/forum/category/search?title="
                     + URLEncoder.encode(title, StandardCharsets.UTF_8));
             log.info("카테고리 제목 조회 요청: '{}' URI: {}", title, uri);
 
@@ -527,7 +527,7 @@ public class ForumEsService {
 
     public List<ForumCategoryDto> getAllCategoriesFromElastic() {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/category");
+            URI uri = new URI(fastapiBaseUrl + "/forum/category");
             log.info("전체 카테고리 조회 요청, URI: {}", uri);
 
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -545,7 +545,7 @@ public class ForumEsService {
 
     public ForumCategoryDto getCategoryById(String categoryId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/category/" + categoryId);
+            URI uri = new URI(fastapiBaseUrl + "/forum/category/" + categoryId);
             log.info("카테고리 ID 조회 요청: '{}' URI: {}", categoryId, uri);
 
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -565,7 +565,7 @@ public class ForumEsService {
      */
     public ForumPostLikeResponseDto togglePostLike(String postId, Long memberId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/post/" + postId + "/like");
+            URI uri = new URI(fastapiBaseUrl + "/forum/post/" + postId + "/like");
             String jsonBody = "{\"memberId\": " + memberId + "}";
 
             HttpHeaders headers = new HttpHeaders();
@@ -587,7 +587,7 @@ public class ForumEsService {
      */
     public ForumPostLikeResponseDto toggleCommentLike(Integer commentId, Long memberId, String postId) {
         try {
-            URI uri = new URI(flaskBaseUrl + "/forum/comment/" + commentId + "/like");
+            URI uri = new URI(fastapiBaseUrl + "/forum/comment/" + commentId + "/like");
             String jsonBody = "{\"memberId\": " + memberId + ", \"postId\": \"" + postId + "\"}";
             // 주의: 댓글 좋아요의 경우, 어느 게시글의 댓글인지도 필요하므로 postId를 함께 보냅니다.
 
@@ -609,7 +609,7 @@ public class ForumEsService {
     public List<ForumPostResponseDto> searchPostsByMember(Long memberId, int page, int size) {
         try {
             // Flask에 새 검색 엔드포인트 호출 (예: /forum/searchByMember)
-            String url = flaskBaseUrl + "/forum/searchByMember?memberId=" + memberId
+            String url = fastapiBaseUrl + "/forum/searchByMember?memberId=" + memberId
                     + "&page=" + (page + 1) + "&size=" + size;
             URI uri = new URI(url);
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -625,7 +625,7 @@ public class ForumEsService {
     public List<ForumPostCommentResponseDto> searchCommentsByMember(Long memberId, int page, int size) {
         try {
             // Flask에 새 검색 엔드포인트 호출 (예: /forum/comments/searchByMember)
-            String url = flaskBaseUrl + "/forum/comments/searchByMember?memberId=" + memberId
+            String url = fastapiBaseUrl + "/forum/comments/searchByMember?memberId=" + memberId
                     + "&page=" + (page + 1) + "&size=" + size;
             URI uri = new URI(url);
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
@@ -640,7 +640,7 @@ public class ForumEsService {
 //    public MyContentResponseDto getMyContent(Long memberId, int postPage, int postSize, int commentPage, int commentSize) {
 //        try {
 //            // Flask의 /forum/my 엔드포인트와 쿼리 파라미터
-//            String url = flaskBaseUrl + "/forum/my"
+//            String url = fastapiBaseUrl + "/forum/my"
 //                    + "?memberId=" + memberId
 //                    + "&postPage=" + postPage
 //                    + "&postSize=" + postSize

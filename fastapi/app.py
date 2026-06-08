@@ -12,9 +12,6 @@ from typing import Optional
 from machine_learning.forest import fetch_data_from_es, load_tfidf_models, recommend_recipe, load_weights_from_json, \
     train_tfidf_model, train_weight
 
-# ================================================================
-# App & 연결 초기화
-# ================================================================
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,9 +25,7 @@ redis_url = os.getenv('REDIS_URL', 'redis://redis:6379')
 redis = Redis.from_url(redis_url, socket_timeout=180)
 queue = Queue(connection=redis, job_timeout="30m")
 
-# ================================================================
-# Utility Functions
-# ================================================================
+
 
 def load_mapping(file_path):
     with open(file_path, "r") as f:
@@ -71,10 +66,8 @@ def strip_db_fields(data: dict) -> dict:
     return {k: v for k, v in data.items() if k not in ES_EXCLUDED_FIELDS}
 
 
-# ================================================================
-# 레시피 업로드 / 수정
-# ================================================================
 
+# 레시피 업로드 / 수정
 @app.post("/upload/index")
 def upload_index(body: dict = Body(...)):
     index_name = body.get("index_name")
@@ -86,8 +79,6 @@ def upload_index(body: dict = Body(...)):
         return {"message": f"Index {index_name} created successfully"}
     else:
         raise HTTPException(status_code=400, detail=f"Index {index_name} already exists")
-
-
 @app.post("/upload/one")
 def upload_one(data: dict = Body(...)):
     try:
