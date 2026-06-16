@@ -102,64 +102,6 @@ def upload_one(data: dict = Body(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/update/reaction-counts")
-@app.post("/update/likes-reports")
-def update_reaction_counts(data: dict = Body(...)):
-    try:
-        reaction_count_data = data.get("reaction_count_data", [])
-        if not reaction_count_data:
-            legacy = data.get("like_report_data", [])
-            if legacy:
-                grouped = {}
-                for entry in legacy:
-                    post_id = entry.get("postId")
-                    content_type = entry.get("type")
-                    if not post_id or not content_type:
-                        continue
-                    key = (post_id, content_type)
-                    grouped.setdefault(key, {"postId": post_id, "type": content_type, "likeCount": 0, "dislikeCount": 0})
-                    key_type = entry.get("keyType")
-                    value = entry.get("value", 0)
-                    if key_type == "like":
-                        grouped[key]["likeCount"] = value
-                    elif key_type in ("report", "dislike"):
-                        grouped[key]["dislikeCount"] = value
-                reaction_count_data = list(grouped.values())
-
-        if not reaction_count_data:
-            raise HTTPException(status_code=400, detail="No reaction count data provided")
-
-        for entry in reaction_count_data:
-            post_id = entry.get("postId")
-            content_type = entry.get("type")
-            like_count = entry.get("likeCount")
-            dislike_count = entry.get("dislikeCount")
-
-            if not post_id or not content_type or like_count is None or dislike_count is None:
-                logger.warning(f"Skipping entry due to missing fields: {entry}")
-                continue
-
-            index_name, _ = get_index_and_mapping(content_type)
-            if not index_name:
-                logger.error(f"Invalid content type: {content_type}")
-                continue
-
-            try:
-                doc = es.get(index=index_name, id=post_id, ignore=404)
-                if doc.get("found", False):
-                    es.update(index=index_name, id=post_id, body={"doc": {"like": like_count, "dislike": dislike_count}})
-                else:
-                    logger.error(f"Document {post_id} not found in {index_name}")
-            except Exception as e:
-                logger.error(f"ES update error for {post_id} in {index_name}:\n{traceback.format_exc()}")
-
-        return {"message": "Reaction counts updated successfully"}
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Unhandled error in /update/reaction-counts:\n{traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.post("/upload/json")
 async def upload_json(file: UploadFile = File(...), type: str = Form(...)):
