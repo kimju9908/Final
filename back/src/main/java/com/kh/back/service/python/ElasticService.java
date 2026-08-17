@@ -80,10 +80,7 @@ public class ElasticService {
 		}
 	}
 
-	/**
-	 * [상세 조회 메서드]
-	 * - 칵테일/음식 등 타입에 따라 적절한 DTO로 매핑
-	 */
+
 	public SearchResDto detail(String id, String type) {
 		try {
 			URI uri = new URI(fastapiBaseUrl + "/detail/" + id + "?type=" + type);
@@ -99,10 +96,7 @@ public class ElasticService {
 		}
 	}
 
-	/**
-	 * [레시피 업로드 메서드]
-	 * - 예: Flask의 /upload/one 엔드포인트 호출
-	 */
+
 	public String uploadRecipe(String jsonData) {
 		try {
 			URI uri = new URI(fastapiBaseUrl + "/upload/one");

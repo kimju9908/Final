@@ -34,11 +34,12 @@ services:
     environment:
       - ELASTICSEARCH_HOST=elasticsearch
       - REDIS_URL=redis://redis:6379/0
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     networks:
       - redis-network
       - backend
     volumes:
-      - ../flask:/app
+      - ../fastapi:/app
 
   rq-worker:
     build:
@@ -74,9 +75,12 @@ services:
       memlock:
         soft: -1
         hard: -1
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
 
 volumes:
   mysql-data:
+  es-data:
 
 networks:
   redis-network:

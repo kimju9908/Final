@@ -36,6 +36,7 @@ import AdminMain from "./page/admin/AdminMain";
 import MemberControlMain from "./page/admin/member/list/MemberControlMain";
 import AdminStore from "./context/AdminStore";
 import MemberItemMain from "./page/admin/member/item/MemberItemMain";
+import RecipeChatBot from "./component/RecipeChatBot";
 
 function App() {
   return (
@@ -110,6 +111,9 @@ function App() {
           {/* /sandbox/fail 경로에 FailPage 연결 */}
         </Routes>
       </Router>
+
+      {/* 전역 레시피 추천 챗봇 - 모든 페이지에서 표시 */}
+      <RecipeChatBot />
     </div>
   );
 }

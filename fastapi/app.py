@@ -1228,3 +1228,70 @@ def reset_recipe_indexes():
     except Exception as e:
         logger.error(f"[reset] 인덱스 재설정 오류:\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ================================================================
+# 챗봇 기반 레시피 추천
+# ================================================================
+
+@app.post("/chat/recipe")
+def chat_recipe(data: dict = Body(...)):
+    """
+    Spring Boot에서 Claude API로 추출한 재료 목록을 받아 ES 검색 후 레시피 반환
+    """
+    ingredients = data.get("ingredients", [])
+    search_type = data.get("type", "food")
+
+    if not ingredients:
+        return {
+            "ingredients": [],
+            "recipes": [],
+            "message": "재료를 찾을 수 없었어요. 예) '계란이랑 두부로 만들 수 있는거 뭐야?'"
+        }
+
+    # 추출된 재료로 ES 검색
+    index_name, _ = get_index_and_mapping(search_type)
+    if not index_name:
+        raise HTTPException(status_code=400, detail="Invalid type")
+
+    should_clauses = [
+        {
+            "nested": {
+                "path": "ingredients",
+                "query": {"match": {"ingredients.ingredient": ingredient}},
+                "boost": 1
+            }
+        }
+        for ingredient in ingredients
+    ]
+
+    try:
+        res = es.search(index=index_name, body={
+            "size": 10,
+            "_source": ["name", "ATT_FILE_NO_MAIN", "RCP_PAT2", "ingredients"],
+            "query": {
+                "bool": {
+                    "should": should_clauses,
+                    "minimum_should_match": 1
+                }
+            }
+        })
+
+        recipes = []
+        for hit in res["hits"]["hits"]:
+            doc = hit["_source"]
+            recipes.append({
+                "id": hit["_id"],
+                "name": doc.get("name", ""),
+                "image": doc.get("ATT_FILE_NO_MAIN", ""),
+                "category": doc.get("RCP_PAT2", ""),
+            })
+
+        return {
+            "ingredients": ingredients,
+            "recipes": recipes,
+            "message": f"'{', '.join(ingredients)}' 재료가 포함된 레시피 {len(recipes)}개를 찾았어요!"
+        }
+    except Exception as e:
+        logger.error(f"[chat/recipe] ES 검색 오류: {e}")
+        raise HTTPException(status_code=500, detail="레시피 검색 중 오류가 발생했습니다.")

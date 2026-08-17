@@ -2,8 +2,10 @@ package com.kh.back.controller.comment;
 
 import com.kh.back.dto.comment.CommentCreateReqDto;
 import com.kh.back.dto.comment.CommentResDto;
+import com.kh.back.dto.comment.CommentSummaryResDto;
 import com.kh.back.dto.comment.ReplyCreateReqDto;
 import com.kh.back.service.comment.CommentService;
+import com.kh.back.service.comment.CommentSummaryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,10 +23,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping
 public class CommentController {
     private final CommentService commentService;
+    private final CommentSummaryService commentSummaryService;
 
     @Autowired
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, CommentSummaryService commentSummaryService) {
         this.commentService = commentService;
+        this.commentSummaryService = commentSummaryService;
     }
     // 특정 레시피의 댓글 목록 조회
     @GetMapping("/recipes/{recipeId}/comments")
@@ -35,6 +39,12 @@ public class CommentController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("commentId").descending());
         Page<CommentResDto> commentPage = commentService.getCommentsByRecipeId(recipeId, pageable);
         return ResponseEntity.ok(commentPage);
+    }
+
+    // 레시피 댓글 AI 요약 조회 (댓글 10개 이상일 때 생성, 20개마다 갱신)
+    @GetMapping("/recipes/{recipeId}/comments/summary")
+    public ResponseEntity<CommentSummaryResDto> getCommentSummary(@PathVariable String recipeId) {
+        return ResponseEntity.ok(commentSummaryService.getSummary(recipeId));
     }
 
     // 레시피 하위 자원으로 댓글 생성

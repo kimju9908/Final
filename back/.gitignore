@@ -37,6 +37,8 @@ out/
 .vscode/
 
 src/main/resources
+.env
+*.env
 
 compose.yaml
 
