@@ -81,9 +81,18 @@ fetchComments: async (postId: string, page: number = 1, size: number = 5) => {
             }
         );
         return response.data;
-    
+
 
 },
+    // 댓글 AI 요약 조회 (댓글 10개 이상일 때 생성, 20개마다 갱신)
+    fetchCommentSummary: async (postId: string) => {
+        const response = await axiosInstance.get<{
+            summary: string | null;
+            commentCount: number;
+            updatedAt: string | null;
+        }>(`/recipes/${postId}/comments/summary`);
+        return response.data;
+    },
 addComment: async (postId: string, content: string) => {
 
         const response = await axiosInstance.post(`/recipes/${postId}/comments`, {

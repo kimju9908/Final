@@ -22,6 +22,7 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
   const [expandedCommentIds, setExpandedCommentIds] = useState<number[]>([]);
   const [page, setPage] = useState<number>(1); // 현재 페이지
   const [totalPages, setTotalPages] = useState<number>(1); // 전체 페이지 수
+  const [aiSummary, setAiSummary] = useState<string | null>(null); // AI 댓글 요약
   const memberId = useSelector((state: RootState) => state.user.id); // Redux에서 memberId 가져오기
 
   // 댓글을 가져오는 함수
@@ -51,6 +52,19 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
   useEffect(() => {
     fetchComments();
   }, [postId, page]);
+
+  // AI 댓글 요약 조회 (댓글 10개 미만이면 summary가 null로 내려옴)
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const data = await RecipeApi.fetchCommentSummary(postId);
+        setAiSummary(data.summary);
+      } catch {
+        setAiSummary(null);
+      }
+    };
+    fetchSummary();
+  }, [postId]);
 
   const handleCommentSubmit = async () => {
     if (commentContent.trim() === "") return;
@@ -106,6 +120,27 @@ const Comment: React.FC<CommentSectionProps> = ({ postId }) => {
       <Typography variant="h5" gutterBottom sx={commentStyles.title}>
         댓글
       </Typography>
+
+      {/* AI 댓글 요약 (댓글 10개 이상일 때만 표시) */}
+      {aiSummary && (
+        <Box
+          sx={{
+            mb: 2,
+            p: 2,
+            borderRadius: 2,
+            bgcolor: "rgba(255, 152, 0, 0.08)",
+            border: "1px solid rgba(255, 152, 0, 0.3)",
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 0.5, color: "#e65100" }}>
+            ✨ AI 댓글 요약
+          </Typography>
+          <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+            {aiSummary}
+          </Typography>
+        </Box>
+      )}
+
       <List>
         {comments.map((comment) => (
           <CommentItem
